@@ -1,4 +1,4 @@
-# Actividad 1: Análisis de Proyecto Fallido - Quibi
+# EQUIPO 1: Actividad 1: Análisis de Proyecto Fallido - Quibi
 
 ## 1. Análisis del Fracaso: Quibi
 Quibi nació con una inversión de 1.75 billones de dólares y cerró en apenas 6 meses. A continuación, se detallan las causas del fallo:
