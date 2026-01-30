@@ -36,6 +36,7 @@ Para rescatar el proyecto, implementaremos un flujo de trabajo ágil basado en *
 3. [ ] *Lanzamiento de Plan Gratuito:* Implementar sistema de anuncios para atraer usuarios.
 4. [ ] *Versión Web:* Permitir la reproducción de contenido desde cualquier navegador.
 5. [ ] *Sistema de Recomendación:* Integrar algoritmos de IA para personalización.
+6. [ ] *Integrar funciones de comunidad:* Comentarios y perfiles de usuario para fomentar la interaccion
 
 ### Objetivos por Sprint (Hitos)
 * *Iteración 1:* "Viralidad y Apertura" - Foco en funciones sociales y fin de la exclusividad móvil.
