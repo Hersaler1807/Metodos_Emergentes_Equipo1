@@ -1,6 +1,6 @@
 # Documentación del Proyecto: Sistema de Control de Equipo de Cómputo
 
-## 👥 Definición de Roles
+## Definición de Roles
 
 
 | Miembro | Rol | Responsabilidades Principales |
@@ -14,7 +14,7 @@
 
 ---
 
-## 📋 Product Backlog Inicial
+## Product Backlog Inicial
 
 ### Fase 1: Cimientos y Autenticación
 * **H01:** Sistema de Login con JWT (Admin, Técnico, Usuario).
