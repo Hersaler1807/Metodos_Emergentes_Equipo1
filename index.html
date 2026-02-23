@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Soporte Técnico Integral</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <style>
+        /* --- ESTILOS GLOBALES --- */
+        :root {
+            --sidebar-bg: #dbdbdb;
+            --main-bg: #f5f5f5;
+            --card-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            --accent-color: #1a1a1a;
+            --input-bg: #eeeeee;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* --- ESTILOS PANTALLA LOGIN --- */
+        #pantalla-login {
+            background: linear-gradient(to bottom, #e0e0e0, #4a4a4a);
+            height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+
+        .login-card {
+            background-color: white; padding: 40px;
+            border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 350px; text-align: center;
+        }
+
+        .user-icon-box {
+            background-color: black; color: white;
+            width: 60px; height: 60px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 15px;
+        }
+
+        .form-group { text-align: left; margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; margin-bottom: 5px; color: #555; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 12px; border: none;
+            border-radius: 20px; background-color: var(--input-bg);
+            box-sizing: border-box; outline: none; font-family: inherit;
+        }
+
+        /* --- ESTILOS DASHBOARD --- */
+        #pantalla-dashboard {
+            display: none; 
+            height: 100vh;
+            background-color: var(--main-bg);
+        }
+
+        .sidebar {
+            width: 260px; background-color: var(--sidebar-bg);
+            padding: 25px; display: flex; flex-direction: column;
+        }
+
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; }
+
+        .nav-item {
+            display: flex; align-items: center; padding: 12px;
+            text-decoration: none; color: #333; border-radius: 10px;
+            margin-bottom: 5px; cursor: pointer;
+        }
+
+        .nav-item:hover, .nav-item.active { background-color: rgba(0,0,0,0.1); font-weight: bold; }
+
+        .header-white-card {
+            background: white; padding: 20px; border-radius: 15px;
+            margin-bottom: 25px; box-shadow: var(--card-shadow);
+            display: flex; align-items: center; gap: 15px;
+        }
+
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 15px; margin-bottom: 30px;
+        }
+
+        .stat-card { background: white; padding: 20px; border-radius: 15px; box-shadow: var(--card-shadow); text-align: center;}
+
+        .report-list-container { background: white; padding: 20px; border-radius: 20px; box-shadow: var(--card-shadow); }
+
+        .report-row {
+            border-bottom: 1px solid #eee; padding: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .report-row:last-child { border-bottom: none; }
+
+        .form-container-card {
+            background: white; padding: 40px; border-radius: 25px;
+            box-shadow: var(--card-shadow); max-width: 600px; margin: 0 auto;
+        }
+
+        .btn-crear-reporte, .btn-ingresar {
+            background-color: var(--accent-color); color: white;
+            border: none; width: 100%; padding: 15px;
+            border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="pantalla-login">
+        <h1 style="font-weight: 300; font-size: 3rem; margin-bottom: 20px;">Bienvenido</h1>
+        <div class="login-card">
+            <div class="user-icon-box"><span class="material-icons-outlined">person</span></div>
+            <p style="margin-bottom: 25px; color: #666;">Acceso al Sistema</p>
+            <div class="form-group">
+                <label>Área de Trabajo</label>
+                <select id="user-area">
+                    <option value="Sistemas" selected>Sistemas</option>
+                    <option value="Biblioteca">Biblioteca</option>
+                    <option value="Recursos Humanos">Recursos Humanos</option>
+                    <option value="Edificio Q">Edificio Q</option>
+                </select>
+            </div>
+            <button class="btn-ingresar" onclick="navegarA('inicio')">Ingresar</button>
+        </div>
+    </div>
+
+    <div id="pantalla-dashboard">
+        <aside class="sidebar">
+            <div style="display:flex; align-items:center; gap:10px; font-weight:bold; margin-bottom:30px;">
+                <span class="material-icons-outlined">build</span> Soporte Técnico
+            </div>
+            <nav>
+                <div class="nav-item active" id="nav-inicio" onclick="navegarA('inicio')">
+                    <span class="material-icons-outlined" style="margin-right:10px">home</span> Inicio
+                </div>
+                <div class="nav-item" id="nav-crear" onclick="navegarA('crear')">
+                    <span class="material-icons-outlined" style="margin-right:10px">add_circle</span> Crear Reporte
+                </div>
+            </nav>
+            <div style="margin-top:auto">
+                <div onclick="location.reload()" class="nav-item" style="color: #d32f2f;">
+                    <span class="material-icons-outlined" style="margin-right:10px">logout</span> Cerrar Sesión
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="header-white-card">
+                <span id="header-icon" class="material-icons-outlined" style="font-size: 30px;">home</span>
+                <div>
+                    <div id="header-title" style="font-weight: bold; font-size: 1.1rem;">Inicio</div>
+                    <div id="bienvenida-texto" style="font-size:0.85rem; color:#666">Bienvenido al Panel de Control</div>
+                </div>
+            </div>
+
+            <div id="vista-inicio">
+                <div class="stats-grid">
+                    <div class="stat-card">Total Reportes: <strong id="total-count">0</strong></div>
+                    <div class="stat-card">Estado: <strong>Activo</strong></div>
+                </div>
+                <div class="report-list-container">
+                    <h3>Reportes en Base de Datos</h3>
+                    <div id="lista-reportes">
+                        <p style="color:#888">Cargando reportes...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="vista-crear" style="display: none;">
+                <div class="form-container-card">
+                    <h2>Nuevo Reporte</h2>
+                    <form onsubmit="event.preventDefault(); enviarReporte();">
+                        <div class="form-group">
+                            <label>Título del Problema</label>
+                            <input type="text" id="rep-titulo" placeholder="Ej: Falla de internet" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción</label>
+                            <textarea id="rep-desc" rows="4" placeholder="Detalle el problema aquí..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-crear-reporte">Guardar Reporte</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- NAVEGACIÓN ---
+        function navegarA(seccion) {
+            document.getElementById('pantalla-login').style.display = 'none';
+            document.getElementById('pantalla-dashboard').style.display = 'flex';
+
+            const vistaInicio = document.getElementById('vista-inicio');
+            const vistaCrear = document.getElementById('vista-crear');
+            const navInicio = document.getElementById('nav-inicio');
+            const navCrear = document.getElementById('nav-crear');
+
+            if (seccion === 'inicio') {
+                vistaInicio.style.display = 'block';
+                vistaCrear.style.display = 'none';
+                navInicio.classList.add('active');
+                navCrear.classList.remove('active');
+                document.getElementById('header-title').innerText = "Inicio";
+                document.getElementById('header-icon').innerText = "home";
+                cargarReportes(); // Cada vez que vamos a inicio, refrescamos datos
+            } else if (seccion === 'crear') {
+                vistaInicio.style.display = 'none';
+                vistaCrear.style.display = 'block';
+                navInicio.classList.remove('active');
+                navCrear.classList.add('active');
+                document.getElementById('header-title').innerText = "Crear Nuevo Reporte";
+                document.getElementById('header-icon').innerText = "add_circle";
+            }
+        }
+
+        // --- ENVIAR DATOS AL SERVIDOR ---
+        async function enviarReporte() {
+            const datos = {
+                titulo: document.getElementById('rep-titulo').value,
+                descripcion: document.getElementById('rep-desc').value,
+                area: document.getElementById('user-area').value
+            };
+
+            try {
+                const respuesta = await fetch('http://localhost:3000/nuevo-reporte', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(datos)
+                });
+
+                if (respuesta.ok) {
+                    alert("✅ Reporte guardado con éxito en MySQL.");
+                    document.getElementById('rep-titulo').value = "";
+                    document.getElementById('rep-desc').value = "";
+                    navegarA('inicio');
+                }
+            } catch (error) {
+                alert("❌ Error: Verifica que 'node server.js' esté corriendo.");
+            }
+        }
+
+        // --- OBTENER DATOS DEL SERVIDOR ---
+        async function cargarReportes() {
+            try {
+                const respuesta = await fetch('http://localhost:3000/obtener-reportes');
+                const reportes = await respuesta.json();
+                
+                const contenedor = document.getElementById('lista-reportes');
+                document.getElementById('total-count').innerText = reportes.length;
+                contenedor.innerHTML = "";
+
+                if (reportes.length === 0) {
+                    contenedor.innerHTML = "<p style='color:#888'>No hay reportes aún.</p>";
+                    return;
+                }
+
+                reportes.forEach(repo => {
+                    contenedor.innerHTML += `
+                        <div class="report-row">
+                            <div>
+                                <strong>${repo.titulo}</strong><br>
+                                <small style="color:#666">${repo.area} - ${repo.descripcion}</small>
+                            </div>
+                            <div style="font-size: 0.75rem; color: #999;">
+                                ${new Date(repo.fecha).toLocaleDateString()}
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                document.getElementById('lista-reportes').innerHTML = "Error al conectar con la base de datos.";
+            }
+        }
+    </script>
+</body>
+</html>
