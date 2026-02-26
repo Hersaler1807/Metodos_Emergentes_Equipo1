@@ -1,0 +1,29 @@
+/* components.css: Estilos para utilidades de la interfaz, reportes y tarjetas */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+}
+
+.report-list-container {
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+}
+
+.report-row {
+    border: 1px solid #f0f0f0;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+}
