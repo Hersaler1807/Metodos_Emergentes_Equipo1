@@ -1,0 +1,18 @@
+# Plan de Pruebas Iniciales
+
+## Objetivo
+Definir las pruebas iniciales del proyecto.
+
+## Alcance
+Cubrir las funcionalidades principales del sistema.
+
+## Tipos de Pruebas
+- Pruebas funcionales
+- Pruebas de validacion
+- Pruebas de integracion
+
+## Casos de Prueba
+| ID | Descripcion | Resultado Esperado |
+|----|------------|-------------------|
+| CP-01 | Inicio del sistema | El sistema inicia correctamente |
+| CP-02 | Validacion de datos | Se muestra mensaje de error |
