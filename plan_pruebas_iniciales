@@ -16,3 +16,6 @@ Cubrir las funcionalidades principales del sistema.
 |----|------------|-------------------|
 | CP-01 | Inicio del sistema | El sistema inicia correctamente |
 | CP-02 | Validacion de datos | Se muestra mensaje de error |
+
+## Conclusión
+Este plan permite detectar errores tempranos.
