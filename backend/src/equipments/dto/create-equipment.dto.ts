@@ -1,5 +1,6 @@
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { EquipmentStatus } from '../entities/equipment.entity';
+import { WorkArea } from '../../common/enums/area.enum';
 
 export class CreateEquipmentDto {
     @IsString({ message: 'El nombre debe ser una cadena de texto' })
@@ -14,9 +15,9 @@ export class CreateEquipmentDto {
     @IsOptional()
     status?: EquipmentStatus;
 
-    @IsString({ message: 'El área debe ser una cadena de texto' })
+    @IsEnum(WorkArea, { message: 'El área no es válida' })
     @IsNotEmpty({ message: 'El área es requerida' })
-    area: string;
+    area: WorkArea;
 
     @IsString({ message: 'Los detalles de hardware deben ser una cadena de texto' })
     @IsOptional()

@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { WorkArea } from '../../common/enums/area.enum';
 
 export enum UserRole {
     ADMIN = 'Admin',
@@ -24,8 +25,11 @@ export class User {
     })
     role: UserRole;
 
-    @Column({ nullable: true })
-    area: string;
+    @Column({
+        type: 'enum',
+        enum: WorkArea,
+    })
+    area: WorkArea;
 
     @CreateDateColumn()
     createdAt: Date;

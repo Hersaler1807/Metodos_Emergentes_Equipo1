@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { WorkArea } from '../../common/enums/area.enum';
 
 export enum EquipmentStatus {
     ACTIVE = 'Activo',
@@ -24,8 +25,11 @@ export class Equipment {
     })
     status: EquipmentStatus;
 
-    @Column()
-    area: string;
+    @Column({
+        type: 'enum',
+        enum: WorkArea,
+    })
+    area: WorkArea;
 
     @Column({ type: 'text', nullable: true })
     hardwareDetails: string;

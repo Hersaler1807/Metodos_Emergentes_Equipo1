@@ -16,7 +16,7 @@ export class TicketsController {
     @Post()
     create(@Body() createTicketDto: CreateTicketDto, @Request() req: any) {
         // req.user viene del token decodificado por el JwtStrategy
-        return this.ticketsService.create(createTicketDto, req.user.userId);
+        return this.ticketsService.create(createTicketDto, req.user.sub);
     }
 
     // SOLO Admin puede ver todos los tickets

@@ -25,7 +25,8 @@ import { ReportsModule } from './reports/reports.module';
         password: configService.get<string>('DB_PASS', ''),
         database: configService.get<string>('DB_NAME', 'control_equipos_db'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true, // Auto creará las tablas (solo usar en desarrollo)
+        synchronize: false, // No usar sincronización automática con enums
+        logging: true, // Ver las queries
       }),
     }),
     AuthModule,

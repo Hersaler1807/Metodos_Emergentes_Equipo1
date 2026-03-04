@@ -1,5 +1,6 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
 import { UserRole } from '../entities/user.entity';
+import { WorkArea } from '../../common/enums/area.enum';
 
 export class CreateUserDto {
     @IsEmail({}, { message: 'El formato de correo electrónico es inválido' })
@@ -15,7 +16,7 @@ export class CreateUserDto {
     @IsNotEmpty({ message: 'El rol es requerido' })
     role: UserRole;
 
-    @IsString({ message: 'El área debe ser una cadena de texto' })
-    @IsOptional()
-    area?: string;
+    @IsEnum(WorkArea, { message: 'El área no es válida' })
+    @IsNotEmpty({ message: 'El área es requerida' })
+    area: WorkArea;
 }

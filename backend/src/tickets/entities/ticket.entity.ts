@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Equipment } from '../../equipments/entities/equipment.entity';
+import { TicketCategory, TicketPriority } from '../../common/enums';
 
 export enum TicketStatus {
     PENDING = 'Pendiente',
@@ -26,6 +27,19 @@ export class Ticket {
         default: TicketStatus.PENDING,
     })
     status: TicketStatus;
+
+    @Column({
+        type: 'enum',
+        enum: TicketCategory,
+    })
+    category: TicketCategory;
+
+    @Column({
+        type: 'enum',
+        enum: TicketPriority,
+        default: TicketPriority.MEDIA,
+    })
+    priority: TicketPriority;
 
     // Evidencias o notas del técnico
     @Column('text', { nullable: true })

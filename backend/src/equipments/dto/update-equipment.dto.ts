@@ -1,5 +1,6 @@
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { EquipmentStatus } from '../entities/equipment.entity';
+import { WorkArea } from '../../common/enums/area.enum';
 
 export class UpdateEquipmentDto {
     @IsString()
@@ -14,9 +15,9 @@ export class UpdateEquipmentDto {
     @IsOptional()
     status?: EquipmentStatus;
 
-    @IsString()
+    @IsEnum(WorkArea)
     @IsOptional()
-    area?: string;
+    area?: WorkArea;
 
     @IsString()
     @IsOptional()
