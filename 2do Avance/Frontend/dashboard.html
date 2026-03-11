@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Control - Soporte Técnico</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="main-container">
+        <nav class="sidebar">
+            <div class="logo-section">
+                <img src="assets/iconos/SoporteTecnico.png" alt="Logo" class="menu-icon" style="width: 35px; height: 35px;">
+                <div>
+                    <strong>Soporte Técnico</strong><br>
+                    <small>Sistema de Reportes</small>
+                </div>
+            </div>
+
+            <p class="nav-label">Navegación</p>
+            <ul id="menu-links"></ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <img src="assets/iconos/IconoUsuario.png" alt="Usuario" class="sidebar-icon" style="width: 35px; height: 35px;"> 
+                    <div>
+                        <strong id="footer-name">Nombre</strong><br>
+                        <span id="footer-role" class="badge">Rol</span>
+                    </div>
+                </div>
+                <button id="btn-logout" class="logout-link">
+                    <span><img src="assets/iconos/CerrarSesion.png" alt="Icono" class="sidebar-icon" style="width: 25px; height: 25px;"></span> Cerrar Sesión
+                </button>
+            </div>
+        </nav>
+
+        <main class="content">
+            <header class="header-welcome">
+                <h1>Inicio</h1>
+                <p>Bienvenido <strong id="welcome-name">Nombre</strong> <span id="welcome-detail">| Detalle</span></p>
+            </header>
+
+            <section class="status-grid" id="status-container">
+                </section>
+
+            <section class="bottom-section">
+                <h3 id="bottom-title">Cargando...</h3>
+                <div id="bottom-list" class="list-container">
+                    </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

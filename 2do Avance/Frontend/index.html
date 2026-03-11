@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Sistema de Soporte</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background">
+        <h1>Bienvenido</h1>
+        <div class="card">
+            
+            <p class="subtitle">Sistema de soporte tecnico</p>
+            <h2>Iniciar Sesión</h2>
+            <img src="assets/iconos/IconoUsuario.png" alt="Usuario" style="width: 50px;">
+            <form id="loginForm">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="example@tecnm.mx" required>
+                
+                <label>Contraseña</label>
+                <input type="password" id="loginPass" placeholder="***********" required>
+                
+                <button type="submit" class="btn-main">Iniciar</button>
+            </form>
+            
+            <p class="footer-text">¿Aun no te has registrado? <a href="registro.html">Regístrate</a></p>
+            <p id="errorMessage" class="error-msg"></p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

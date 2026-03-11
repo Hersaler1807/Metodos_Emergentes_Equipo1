@@ -1,0 +1,90 @@
+body { margin: 0; font-family: sans-serif; background-color: #f0f0f0; }
+
+.main-container { display: flex; height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #e0e0e0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-section { display: flex; align-items: center; margin-bottom: 30px; }
+.nav-label { font-size: 0.7rem; color: #666; text-transform: uppercase; }
+
+ul { list-style: none; padding: 0; }
+ul li { padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 5px; }
+ul li:hover, ul li.active { background-color: #ccc; }
+
+.sidebar-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid #ccc; }
+
+/* Contenido */
+.content { flex: 1; padding: 40px; background: linear-gradient(to bottom, #fff, #999); }
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.card, .card-u {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    text-align: center;
+    padding: 20px;
+}
+
+.card h3, .card-u h3 { font-size: 0.9rem; margin-bottom: 10px; }
+.card p, .card-u p { font-size: 2rem; font-weight: bold; margin: 0; }
+
+.bottom-section {
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    min-height: 200px;
+}
+
+/* Iconos del menú lateral */
+.menu-icon {
+    width: 22px;
+    height: 22px;
+    margin-right: 12px;
+    vertical-align: middle;
+    object-fit: contain;
+}
+
+/* Iconos de las tarjetas centrales (Técnico) */
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+/* Icono de usuario en la parte inferior del sidebar */
+.icon-img {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+
+/* Ajuste para el botón de cerrar sesión */
+.logout-link {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    color: #333;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 10px;
+    width: 100%;
+}
