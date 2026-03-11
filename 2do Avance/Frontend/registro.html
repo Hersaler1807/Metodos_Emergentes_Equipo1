@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro - Sistema de Soporte</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background">
+        <h1>Bienvenido</h1>
+        <div class="card">
+            <div class="user-icon-container">
+                <img src="assets/iconos/IconoUsuario.png" alt="Usuario" style="width: 50px;">
+            </div>
+            <p class="subtitle">Sistema de soporte tecnico</p>
+            <h2>Regístrate</h2>
+            
+            <form id="registerForm">
+                <label>Nombre</label>
+                <input type="text" id="regName" required>
+                
+                <label>Correo</label>
+                <input type="email" id="regEmail" placeholder="usuario@tecnm.mx" required>
+                
+                <label>Área</label>
+                <select id="regArea" required>
+                    <option value="" disabled selected>Selecciona tu área</option>
+                    <option value="recursos_humanos">Recursos Humanos</option>
+                    <option value="recursos_financieros">Recursos Financieros</option>
+                    <option value="direccion">Dirección</option>
+                    <option value="comunicacion">Comunicación</option>
+                    <option value="servicios_escolares">Servicios Escolares</option>
+                </select>
+
+                <label>Contraseña</label>
+                <input type="password" id="regPass" required>
+                
+                <label>Confirmar contraseña</label>
+                <input type="password" id="regPassConfirm" required>
+                
+                <button type="submit" class="btn-main">Regístrate</button>
+            </form>
+            
+            <p class="footer-text">¿Ya estas registrado? <a href="index.html">Iniciar Sesión</a></p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
