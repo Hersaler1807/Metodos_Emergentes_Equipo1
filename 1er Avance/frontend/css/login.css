@@ -1,0 +1,30 @@
+/* login.css: Estilos específicos para la pantalla de inicio de sesión */
+#pantalla-login {
+    background: linear-gradient(to bottom, #e0e0e0, #4a4a4a);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card {
+    background-color: white;
+    padding: 40px;
+    border-radius: 25px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    text-align: center;
+}
+
+.user-icon-box {
+    background-color: black;
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+}

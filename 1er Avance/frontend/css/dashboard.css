@@ -1,0 +1,49 @@
+/* dashboard.css: Estilos para el layout general del dashboard, sidebar y header */
+#pantalla-dashboard {
+    display: none;
+    /* Se activa con JS */
+    height: 100vh;
+    background-color: var(--main-bg);
+}
+
+.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    text-decoration: none;
+    color: #333;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background-color: rgba(0, 0, 0, 0.05);
+    font-weight: bold;
+}
+
+.header-white-card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}

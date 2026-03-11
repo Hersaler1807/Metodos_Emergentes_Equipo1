@@ -1,0 +1,89 @@
+# Plan de Implementación del Backend (NestJS)
+
+## Resumen
+Este documento detalla el plan estructurado por fases para desarrollar el backend del "Sistema de Control de Equipo de Cómputo" utilizando **NestJS** y **MySQL** como base de datos (mediante TypeORM o Prisma). 
+
+Se define una arquitectura modular donde cada entidad principal de negocio cuenta con su propio módulo, controlador (rutas) y servicio (lógica). La autenticación estará protegida mediante **JWT con expiración de 8 horas** e implementación de Guards para manejar Roles.
+
+## Fase 1: Configuración Inicial y Base de Datos
+**Objetivo:** Inicializar el proyecto NestJS e integrar la conexión a MySQL usando un ORM.
+
+1. **Estructura Base:**
+   - Crear el proyecto: `nest new backend`
+   - Configurar `ConfigModule` para variables de entorno (`.env` con DB URL y JWT Secret).
+2. **Database Module:**
+   - `DatabaseModule` para gestionar la conexión global a la base de datos MySQL.
+
+## Fase 2: Autenticación y Autorización (JWT)
+**Objetivo:** Proveer el sistema de Login, emisión de tokens con duración de 8 horas, y restricción por roles.
+
+### `AuthModule`
+*Depende de `UsersModule` (Fase 3) y `JwtModule`.*
+- **Estrategia JWT:** Configurar `JwtModule.register()` con un `expiresIn: '8h'`.
+- **`AuthController`:**
+  - `POST /auth/login`: Recibe email/contraseña, valida y retorna el token firmado.
+- **`AuthService`:**
+  - `validateUser()`: Verifica credenciales en base de datos.
+  - `login()`: Genera el Payload (id, correo, rol) y devuelve el Token.
+- **Guards y Decorators:**
+  - `JwtAuthGuard`: Protege rutas verificando la validez del token en cada petición.
+  - `RolesGuard`: Valida si el rol del usuario que hace la solicitud tiene permiso (Admin, Técnico, Usuario).
+
+## Fase 3: Gestión de Usuarios
+**Objetivo:** Permitir al Administrador manejar (CRUD) los usuarios del sistema.
+
+### `UsersModule`
+- **`UsersController` (Protegido por JwtAuthGuard y RolesGuard='Admin'):**
+  - `POST /users`: Crear cuenta de técnico/usuario.
+  - `GET /users`: Listar usuarios.
+  - `PUT /users/:id`: Modificar información de usuario o rol.
+  - `DELETE /users/:id`: Desactivar/Eliminar cuenta.
+- **`UsersService`:**
+  - Logica CRUD sobre la entidad `User` (Admin interactúa con esta lógica).
+
+## Fase 4: Control de Equipos (Inventario)
+**Objetivo:** Manejar el registro y asignación de los equipos de cómputo físicos.
+
+### `EquipmentsModule`
+- **`EquipmentsController` (Protegido por JwtAuthGuard y RolesGuard='Admin'):**
+  - `POST /equipments`: Dar de alta un equipo de cómputo.
+  - `GET /equipments`: Consultar el inventario de equipos (Paginación, filtros).
+  - `PUT /equipments/:id`: Actualizar detalles (Estado, Hardware).
+  - `GET /equipments/:id/history`: Ver el historial de reparaciones/mantenimientos del equipo.
+- **`EquipmentsService`:**
+  - `create()`, `findAll()`, `update()`, `getHistory()`.
+
+## Fase 5: Gestión de Tickets de Soporte
+**Objetivo:** El núcleo del sistema. Levantamiento, asignación, cambios de estado y solución de reportes técnicos.
+
+### `TicketsModule`
+- **`TicketsController` (Protegido por JwtAuthGuard):**
+  *Interacciones del Usuario Final:*
+  - `POST /tickets`: Crear un nuevo reporte de fallo (`Roles: User, Admin`).
+  - `GET /tickets/my-tickets`: Ver el listado y el estado de sus propios reportes (`Roles: User`).
+  
+  *Interacciones del Administrador:*
+  - `GET /tickets`: Ver todos los tickets levantados (`Roles: Admin`).
+  - `PUT /tickets/:id/assign`: Asignar el ticket a un Técnico en específico (`Roles: Admin`).
+  
+  *Interacciones del Técnico:*
+  - `GET /tickets/assigned`: Ver los tickets que tiene asignados para reparar (`Roles: Technician`).
+  - `PUT /tickets/:id/status`: Actualizar el estado del ticket (En progreso, Resuelto, etc.) (`Roles: Technician`).
+  - `POST /tickets/:id/evidence`: Subir una descripción de la solución y evidencia visual (`Roles: Technician`).
+- **`TicketsService`:**
+  - Lógica para `createTicket()`, `assignToTechnician()`, `updateStatus()`, `addEvidence()`.
+
+## Fase 6: Sistema de Métricas y Reportes
+**Objetivo:** Proveer información consolidada de desempeño (estadísticas del Dashboard).
+
+### `ReportsModule`
+- **`ReportsController`:**
+  - `GET /reports/dashboard-stats`: Obtiene conteos de ("Total", "En proceso", "Resueltos"). Accesible para generar la vista principal del Dashboard (`Roles: Admin, Technician`).
+  - `GET /reports/technician-performance`: Métricas de resolución por técnico (`Roles: Admin`).
+- **`ReportsService`:**
+  - Ejecución de consultas agrupadas complejas a la base de datos para generar métricas.
+
+## Integración Continua (Siguientes Pasos)
+1. Escoger si utilizaremos **AppTypeORM** o **Prisma** para el mapeo a MySQL.
+2. Definir los Modelos DTOs (*Data Transfer Objects*) para la validación de entrada por cada controlador.
+3. Crear el proyecto base de NestJS mediante consola e inicializar estos módulos paso por paso, empezando de la Fase 1 a la Fase 3 como nuestro primer hito.
