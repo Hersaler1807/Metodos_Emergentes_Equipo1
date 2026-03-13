@@ -88,3 +88,42 @@ ul li:hover, ul li.active { background-color: #ccc; }
     padding: 10px;
     width: 100%;
 }
+
+/* Estilos para el formulario de reportes */
+.form-section {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.report-form label {
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.report-form input, 
+.report-form select, 
+.report-form textarea {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background: #f9f9f9;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-col {
+    flex: 1;
+}
+
+.report-form textarea {
+    resize: vertical;
+}
