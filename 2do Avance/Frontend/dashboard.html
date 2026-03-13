@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
+    <!-- Panel lateral -->
     <div class="main-container">
         <nav class="sidebar">
             <div class="logo-section">
@@ -15,7 +16,7 @@
                     <small>Sistema de Reportes</small>
                 </div>
             </div>
-
+            <!-- Panel de navegacion -->
             <p class="nav-label">Navegación</p>
             <ul id="menu-links"></ul>
 
@@ -34,22 +35,75 @@
         </nav>
 
         <main class="content">
-            <header class="header-welcome">
-                <h1>Inicio</h1>
-                <p>Bienvenido <strong id="welcome-name">Nombre</strong> <span id="welcome-detail">| Detalle</span></p>
-            </header>
+            <!-- Panel principal-->
+            <div id="vista-inicio">
+                <header class="header-welcome">
+                    <h1>Inicio</h1>
+                    <p>Bienvenido <strong id="welcome-name">Nombre</strong> <span id="welcome-detail"></span></p>
+                </header>
 
-            <section class="status-grid" id="status-container">
+                <section class="status-grid" id="status-container">
+                    </section>
+
+                <section class="bottom-section">
+                    <h3 id="bottom-title">Cargando...</h3>
+                    <div id="bottom-list" class="list-container">
+                        </div>
                 </section>
+            </div>
+            <!-- Panel de crear reporte -->
+            <div id="vista-crear-reporte" style="display: none;">
+                <header class="header-welcome">
+                    <h1>Crear Nuevo Reporte</h1>
+                    <p>Por favor, detalla el problema de tu equipo para que un técnico te asista.</p>
+                </header>
 
-            <section class="bottom-section">
-                <h3 id="bottom-title">Cargando...</h3>
-                <div id="bottom-list" class="list-container">
-                    </div>
-            </section>
+                <section class="form-section">
+                    <form id="formNuevoReporte" class="report-form">
+                        
+                        <label>Asunto:</label>
+                        <input type="text" id="repAsunto" placeholder="Ej. Computadora no enciende" required>
+
+                        <label>ID del Equipo (Número de serie o etiqueta):</label>
+                        <input type="text" id="repEquipo" placeholder="Ej. PC-FINANZAS-02" required>
+
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label>Categoría de la falla:</label>
+                                <select id="repCategoria" required>
+                                    <option value="" disabled selected>Selecciona una opción</option>
+                                    <option value="hardware">Hardware (Teclado, Mouse, Monitor, CPU)</option>
+                                    <option value="software">Software (Programas, Windows, Virus)</option>
+                                    <option value="red">Red e Internet</option>
+                                    <option value="mantenimiento_preventivo">Mantenimiento Preventivo</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="form-col">
+                                <label>Prioridad:</label>
+                                <select id="repPrioridad" required>
+                                    <option value="baja">Baja (No afecta mi trabajo)</option>
+                                    <option value="media" selected>Media (Molesto pero puedo trabajar)</option>
+                                    <option value="alta">Alta (No puedo trabajar)</option>
+                                    <option value="critica">Crítica (Afecta a todo el departamento)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <label>Descripción detallada:</label>
+                        <textarea id="repDescripcion" rows="5" placeholder="Describe exactamente qué estabas haciendo y qué error apareció..." required></textarea>
+
+                        <button type="submit" class="btn-main">Enviar Reporte</button>
+                    </form>
+                </section>
+            </div>
+
         </main>
+
     </div>
 
     <script src="dashboard.js"></script>
 </body>
 </html>
+
+
