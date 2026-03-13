@@ -8,30 +8,34 @@ if (loginForm) {
         const password = document.getElementById('loginPass').value;
         const msg = document.getElementById('errorMessage');
 
-        // Validación básica del lado del cliente
+        // Validación básica
         if (!correo.endsWith('@tecnm.mx')) {
-            msg.innerText = "Correo o Contraseña incorrecta"; // Mensaje genérico por seguridad
+            msg.innerText = "Correo o Contraseña incorrecta";
             return;
         }
 
         try {
+            // Enviamos los datos a Python
             const respuesta = await fetch('http://localhost:5000/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ correo, password })
             });
 
+            // Recibimos la respuesta de Python 
             const resultado = await respuesta.json();
 
             if (respuesta.ok) {
-                // Guardamos el nombre y rol para usarlos en la siguiente página
+
                 localStorage.setItem('usuarioNombre', resultado.nombre);
                 localStorage.setItem('usuarioRol', resultado.rol);
+                localStorage.setItem('usuarioArea', resultado.area);
+                localStorage.setItem('usuarioId', resultado.id);
                 
                 alert("¡Bienvenido " + resultado.nombre + "!");
-                window.location.href = "dashboard.html"; // Aquí irá tu página principal
+                window.location.href = "dashboard.html";
             } else {
-                msg.innerText = resultado.error;
+                msg.innerText = resultado.error; // Si la contraseña está mal
             }
         } catch (error) {
             console.error("Error:", error);
@@ -39,6 +43,7 @@ if (loginForm) {
         }
     });
 }
+
 
 // Validación para el Registro
 const registerForm = document.getElementById('registerForm');
@@ -55,7 +60,7 @@ if (registerForm) {
         };
 
         try {
-            // Enviar datos a Python (Puerto 5000)
+            // Enviar datos a Python
             const respuesta = await fetch('http://localhost:5000/registro', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
