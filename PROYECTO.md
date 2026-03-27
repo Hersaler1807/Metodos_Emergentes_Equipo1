@@ -94,7 +94,7 @@ Se crearon tres nuevas rutas exclusivas para que el Administrador pueda gestiona
   - Se actualizó el bloque de condicionales (`if`) para validar correctamente el rol de Administrador.
   - Se integró el código funcional para cargar la tabla dinámica, abrir el modal de edición, guardar nuevas contraseñas y ejecutar la eliminación de usuarios.
 
-## 🧑‍💻 4. Vista "Mis Técnicos"
+##  4. Vista "Mis Técnicos"
 - Se conectó la información de la base de datos para que el **usuario básico** pueda visualizar correctamente los perfiles públicos de los técnicos directamente en su panel.
 
 ##  5. Seguridad y Encriptación (Werkzeug)
