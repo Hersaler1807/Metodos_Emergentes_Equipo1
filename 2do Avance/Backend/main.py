@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
+import jwt
 import datetime
 from functools import wraps
 
@@ -9,6 +10,8 @@ from reports import reports_bp
 
 app = Flask(__name__)
 CORS(app) # Comunicacion HTML entre Python
+# Python usará esta clave secreta para firmar los tokens. 
+app.config['SECRET_KEY'] = 'mi_secreto_super_seguro_para_el_tecnologico_123'
 
 # Configuración de la conexión a XAMPP
 def conectar_db():
@@ -19,6 +22,45 @@ def conectar_db():
         database="sistema_soporte"
     )
 
+# =========================================================
+# EL GUARDIA DE SEGURIDAD (Decorador de Roles)
+# =========================================================
+def requiere_rol(*roles_permitidos):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            token = None
+            
+            # 1. Buscamos si el navegador nos envió el token
+            if 'Authorization' in request.headers:
+                auth_header = request.headers['Authorization']
+                # Cortamos el token
+                if auth_header.startswith('Bearer '):
+                    token = auth_header.split(" ")[1]
+
+            # Si no trae pulsera, ¡pa' fuera!
+            if not token:
+                return jsonify({'error': '¡Alto! Faltan tus credenciales de seguridad.'}), 401
+
+            try:
+                # Desciframos la pulsera usando nuestra llave secreta
+                data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+                usuario_actual = data # Aquí viene su ID y su Rol reales
+
+                #  Revisamos si su rol tiene permiso de entrar a esta zona
+                if usuario_actual['rol'] not in roles_permitidos:
+                    return jsonify({'error': 'No tienes permisos suficientes para hacer esto.'}), 403
+
+            except jwt.ExpiredSignatureError:
+                return jsonify({'error': 'Tu sesión ha expirado. Vuelve a iniciar sesión.'}), 401
+            except jwt.InvalidTokenError:
+                return jsonify({'error': 'Token inválido. ¡Intento de seguridad fallido!'}), 401
+
+            # Si pasó todas las pruebas, lo dejamos pasar a la función original
+            # Y le pasamos los datos del usuario_actual por si los necesita
+            return f(usuario_actual, *args, **kwargs)
+        return decorated_function
+    return decorator
 
 @app.route('/registro', methods=['POST'])
 def registrar_usuario():
@@ -101,6 +143,7 @@ app.register_blueprint(reports_bp, url_prefix='/reports')
 
 # Obtener la lista de todos los usuarios
 @app.route('/admin/usuarios', methods=['GET'])
+@requiere_rol('admin') 
 def obtener_usuarios(usuario_actual): 
     try:
         conexion = conectar_db()
@@ -129,6 +172,7 @@ def obtener_usuarios(usuario_actual):
 
 # Actualizar el rol o cambiar la contraseña de un usuario
 @app.route('/admin/usuarios/<int:id_usuario>', methods=['PUT'])
+@requiere_rol('admin') 
 def editar_usuario(usuario_actual, id_usuario): 
     datos = request.json
     nuevo_rol = datos.get('rol')
@@ -164,6 +208,7 @@ def editar_usuario(usuario_actual, id_usuario):
 
 # 3. Eliminar un usuario del sistema
 @app.route('/admin/usuarios/<int:id_usuario>', methods=['DELETE'])
+@requiere_rol('admin') 
 def eliminar_usuario(usuario_actual, id_usuario):
     try:
         conexion = conectar_db()
