@@ -31,6 +31,7 @@ if (loginForm) {
                 localStorage.setItem('usuarioRol', resultado.rol);
                 localStorage.setItem('usuarioArea', resultado.area);
                 localStorage.setItem('usuarioId', resultado.id);
+                localStorage.setItem('token', resultado.token);
                 
                 alert("¡Bienvenido " + resultado.nombre + "!");
                 window.location.href = "dashboard.html";
