@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const area = localStorage.getItem('usuarioArea');
 
     // ---------------------------------------------------------
-    //                  ELEMENTOS DEL HTML
+    //                  ELEMENTOS DEL HTML.
     // ---------------------------------------------------------
     const welcomeName = document.getElementById('welcome-name');
     const welcomeDetail = document.getElementById('welcome-detail');
