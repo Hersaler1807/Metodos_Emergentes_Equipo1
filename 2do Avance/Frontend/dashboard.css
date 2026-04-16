@@ -1,51 +1,101 @@
-body { margin: 0; font-family: sans-serif; background-color: #f0f0f0; }
+/* ========================================= */
+/* VARIABLES DE TEMA (CLARO / OSCURO)        */
+/* ========================================= */
+:root {
+    /* Tema Claro (Por defecto, los colores que ya tienes) */
+    --bg-body: #f0f0f0;
+    --bg-sidebar: #e0e0e0;
+    --bg-content: linear-gradient(to bottom, #fff, #999);
+    --bg-card: white;
+    --texto-principal: #333;
+    --texto-secundario: #666;
+    --borde: #ccc;
+    --hover-menu: #ccc;
+    --filtro-iconos: none;
+}
+
+[data-theme="dark"] {
+    /* Tema Oscuro */
+    --bg-body: #121212;
+    --bg-sidebar: #1e1e1e;
+    --bg-content: #121212;
+    --bg-card: #2a2a2a;      
+    --texto-principal: #ffffff; 
+    --texto-secundario: #d0d0d0; 
+    --borde: #333333;
+    --hover-menu: #2d2d2d;
+    --filtro-iconos: invert(1); 
+}
+
+[data-theme="dark"] img.menu-icon,
+[data-theme="dark"] img.stat-icon,
+[data-theme="dark"] .status-card img,
+[data-theme="dark"] .sidebar-icon {
+    filter: invert(1) brightness(2); /* Brillo extra para que el blanco resalte más */
+}
+
+body { margin: 0; font-family: sans-serif; background-color: var(--bg-body); color: var(--texto-principal); transition: all 0.3s; }
 
 .main-container { display: flex; height: 100vh; }
 
 /* Sidebar */
 .sidebar {
     width: 250px;
-    background-color: #e0e0e0;
+    background-color: var(--bg-sidebar);
     padding: 20px;
     display: flex;
     flex-direction: column;
+    border-right: 1px solid var(--borde);
+    transition: all 0.3s;
 }
 
 .logo-section { display: flex; align-items: center; margin-bottom: 30px; }
-.nav-label { font-size: 0.7rem; color: #666; text-transform: uppercase; }
+.nav-label { font-size: 0.7rem; color: var(--texto-secundario); text-transform: uppercase; }
 
 ul { list-style: none; padding: 0; }
 ul li { padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 5px; }
-ul li:hover, ul li.active { background-color: #ccc; }
+ul li:hover, ul li.active { background-color: var(--hover-menu); }
 
-.sidebar-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid #ccc; }
+.sidebar-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--borde); }
 
 /* Contenido */
-.content { flex: 1; padding: 40px; background: linear-gradient(to bottom, #fff, #999); }
+.content { flex: 1; padding: 40px; background: var(--bg-content); transition: all 0.3s; }
 
+/* Contenedor de las tarjetas (Sin fondo blanco) */
 .status-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
-    background: white;
-    padding: 30px;
-    border-radius: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
-.card, .card-u {
-    background: #f9f9f9;
-    border: 1px solid #ddd;
+/* Tarjetas individuales */
+.status-card {
+    background: var(--bg-card);
+    padding: 30px 20px;
     border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     text-align: center;
-    padding: 20px;
+    border: 1px solid var(--borde);
 }
 
-.card h3, .card-u h3 { font-size: 0.9rem; margin-bottom: 10px; }
-.card p, .card-u p { font-size: 2rem; font-weight: bold; margin: 0; }
+.status-card h3 {
+    margin: 0;
+    color: var(--texto-secundario);
+    font-size: 1.2rem;
+}
+
+/* Números Gigantes */
+.status-number {
+    font-size: 4rem !important;
+    font-weight: bold;
+    margin: 15px 0 0 0;
+    line-height: 1;
+    color: var(--texto-principal); 
+}
 
 .bottom-section {
-    background: white;
+    background: var(--bg-card); border: 1px solid var(--borde);
     padding: 20px;
     border-radius: 20px;
     min-height: 200px;
@@ -58,6 +108,7 @@ ul li:hover, ul li.active { background-color: #ccc; }
     margin-right: 12px;
     vertical-align: middle;
     object-fit: contain;
+    filter: var(--filtro-iconos);
 }
 
 /* Iconos de las tarjetas centrales (Técnico) */
@@ -66,6 +117,7 @@ ul li:hover, ul li.active { background-color: #ccc; }
     height: 40px;
     margin-bottom: 10px;
     opacity: 0.8;
+    filter: var(--filtro-iconos);
 }
 
 /* Icono de usuario en la parte inferior del sidebar */
@@ -87,4 +139,233 @@ ul li:hover, ul li.active { background-color: #ccc; }
     font-size: 0.9rem;
     padding: 10px;
     width: 100%;
+}
+
+/* Estilos para el formulario de reportes */
+.form-section {
+    background: var(--bg-card);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.report-form label {
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.report-form input, 
+.report-form select, 
+.report-form textarea {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background: #f9f9f9;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-col {
+    flex: 1;
+}
+
+.report-form textarea {
+    resize: vertical;
+}
+/* Estilos para la tabla de Mis Reportes */
+.table-section {
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    margin-top: 20px;
+}
+
+.table-container {
+    overflow-x: auto; 
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.report-table th, .report-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.report-table th {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: bold;
+}
+
+.report-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Etiquetas de colores para el estado */
+.badge-estado {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.estado-pendiente { background-color: #ffeeba; color: #856404; }
+.estado-en_proceso { background-color: #b8daff; color: #004085; }
+.estado-resuelto { background-color: #c3e6cb; color: #155724; }
+
+/* --------------------------------------------------- */
+/* ESTILOS DE LA VENTANA EMERGENTE                     */
+/* --------------------------------------------------- */
+.modal-overlay {
+    position: fixed; /* Se queda fijo aunque hagas scroll */
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* Fondo negro semi-transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Asegura que esté por encima de todo lo demás */
+}
+
+.modal-content {
+    background: var(--bg-card);
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    color: var(--texto-principal);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.modal-select {
+    width: 100%;
+    padding: 12px;
+    margin: 20px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    flex: 1;
+    font-weight: bold;
+}
+
+.btn-secondary:hover {
+    background: #ccc;
+}
+
+.sidebar-icon {
+    filter: var(--filtro-iconos);
+}
+
+/* Obligamos a las listas a usar el color del tema */
+.list-container {
+    background-color: var(--bg-card) !important;
+    color: var(--texto-principal) !important;
+    border: 1px solid var(--borde);
+}
+
+/* ========================================= */
+/* AJUSTES ESPECÍFICOS PARA MODO OSCURO      */
+/* ========================================= */
+
+/* 1. Forzar color de texto en las tarjetas de listas */
+.list-container {
+    background-color: var(--bg-card) !important;
+    color: var(--texto-principal) !important;
+}
+
+/* 2. Aclarar textos fuertes (títulos de reportes) */
+.list-container strong {
+    color: var(--texto-principal);
+}
+
+/* 3. Aclarar textos pequeños (nombres, correos, equipos) */
+.list-container small,
+.list-container p,
+.list-container div {
+    color: var(--texto-secundario);
+}
+
+/* 4. Asegurar que los enlaces (ej. ver evidencia) se lean */
+.list-container a {
+    color: #66b2ff !important; /* Un azul más claro para fondos oscuros */
+}
+
+/* ========================================= */
+/* FORZAR TEXTOS CLAROS EN MODO OSCURO       */
+/* ========================================= */
+
+/* 1. Forzar que los números gigantes sean blancos */
+[data-theme="dark"] .status-card p,
+[data-theme="dark"] .card p {
+    color: #ffffff !important;
+}
+
+/* 2. Forzar que TODO el texto de las listas inferiores sea claro */
+[data-theme="dark"] .bottom-section,
+[data-theme="dark"] .list-container {
+    color: #e0e0e0 !important;
+}
+
+[data-theme="dark"] .list-container h3,
+[data-theme="dark"] .list-container strong,
+[data-theme="dark"] .list-container td,
+[data-theme="dark"] .list-container p,
+[data-theme="dark"] .list-container div,
+[data-theme="dark"] .list-container small {
+    color: #e0e0e0 !important; /* Un gris muy clarito casi blanco */
+}
+
+/* 3. Que los títulos destaquen aún más en blanco puro */
+[data-theme="dark"] .list-container strong {
+    color: #ffffff !important;
+}
+
+/* 4. Respetamos los colores de las etiquetas de estado (Pendiente, Resuelto) */
+[data-theme="dark"] .badge-estado {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .bottom-section h3,
+[data-theme="dark"] #bottom-title,
+[data-theme="dark"] #usuarios-recientes-title {
+    color: #ffffff !important;
+}
+
+/* 6. Corregir el resalte (hover) de las filas de la tabla en modo oscuro */
+[data-theme="dark"] table tbody tr:hover,
+[data-theme="dark"] .report-table tbody tr:hover {
+    background-color: #3a3a3a !important; /* Un gris un poco más claro que el fondo de la tabla */
+}
+
+/* Opcional: Asegurarnos de que el texto no cambie de color accidentalmente al pasar el mouse */
+[data-theme="dark"] table tbody tr:hover td {
+    color: #ffffff !important; 
 }
