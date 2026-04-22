@@ -71,26 +71,27 @@ ul li:hover, ul li.active { background-color: var(--hover-menu); }
 
 /* Tarjetas individuales */
 .status-card {
-    background: white;
+    background: var(--bg-card);
     padding: 30px 20px;
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     text-align: center;
-    border: 1px solid #eee;
+    border: 1px solid var(--borde);
 }
 
 .status-card h3 {
     margin: 0;
-    color: #555;
+    color: var(--texto-secundario);
     font-size: 1.2rem;
 }
 
 /* Números Gigantes */
 .status-number {
-    font-size: 4rem !important; 
+    font-size: 4rem !important;
     font-weight: bold;
     margin: 15px 0 0 0;
     line-height: 1;
+    color: var(--texto-principal); 
 }
 
 .bottom-section {
@@ -142,7 +143,7 @@ ul li:hover, ul li.active { background-color: var(--hover-menu); }
 
 /* Estilos para el formulario de reportes */
 .form-section {
-    background: white;
+    background: var(--bg-card);
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
@@ -180,7 +181,7 @@ ul li:hover, ul li.active { background-color: var(--hover-menu); }
 }
 /* Estilos para la tabla de Mis Reportes */
 .table-section {
-    background: white;
+    background: var(--bg-card);
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
@@ -239,12 +240,13 @@ ul li:hover, ul li.active { background-color: var(--hover-menu); }
 }
 
 .modal-content {
-    background: white;
+    background: var(--bg-card);
     padding: 30px;
     border-radius: 15px;
     width: 90%;
     max-width: 400px;
     text-align: center;
+    color: var(--texto-principal);
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
@@ -276,4 +278,166 @@ ul li:hover, ul li.active { background-color: var(--hover-menu); }
 
 .btn-secondary:hover {
     background: #ccc;
+}
+
+.sidebar-icon {
+    filter: var(--filtro-iconos);
+}
+
+/* Obligamos a las listas a usar el color del tema */
+.list-container {
+    background-color: var(--bg-card) !important;
+    color: var(--texto-principal) !important;
+    border: 1px solid var(--borde);
+}
+
+/* ========================================= */
+/* AJUSTES ESPECÍFICOS PARA MODO OSCURO      */
+/* ========================================= */
+
+/* 1. Forzar color de texto en las tarjetas de listas */
+.list-container {
+    background-color: var(--bg-card) !important;
+    color: var(--texto-principal) !important;
+}
+
+/* 2. Aclarar textos fuertes (títulos de reportes) */
+.list-container strong {
+    color: var(--texto-principal);
+}
+
+/* 3. Aclarar textos pequeños (nombres, correos, equipos) */
+.list-container small,
+.list-container p,
+.list-container div {
+    color: var(--texto-secundario);
+}
+
+/* 4. Asegurar que los enlaces (ej. ver evidencia) se lean */
+.list-container a {
+    color: #66b2ff !important; /* Un azul más claro para fondos oscuros */
+}
+
+/* ========================================= */
+/* FORZAR TEXTOS CLAROS EN MODO OSCURO       */
+/* ========================================= */
+
+/* 1. Forzar que los números gigantes sean blancos */
+[data-theme="dark"] .status-card p,
+[data-theme="dark"] .card p {
+    color: #ffffff !important;
+}
+
+/* 2. Forzar que TODO el texto de las listas inferiores sea claro */
+[data-theme="dark"] .bottom-section,
+[data-theme="dark"] .list-container {
+    color: #e0e0e0 !important;
+}
+
+[data-theme="dark"] .list-container h3,
+[data-theme="dark"] .list-container strong,
+[data-theme="dark"] .list-container td,
+[data-theme="dark"] .list-container p,
+[data-theme="dark"] .list-container div,
+[data-theme="dark"] .list-container small {
+    color: #e0e0e0 !important; /* Un gris muy clarito casi blanco */
+}
+
+/* 3. Que los títulos destaquen aún más en blanco puro */
+[data-theme="dark"] .list-container strong {
+    color: #ffffff !important;
+}
+
+/* 4. Respetamos los colores de las etiquetas de estado (Pendiente, Resuelto) */
+[data-theme="dark"] .badge-estado {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .bottom-section h3,
+[data-theme="dark"] #bottom-title,
+[data-theme="dark"] #usuarios-recientes-title {
+    color: #ffffff !important;
+}
+
+/* 6. Corregir el resalte (hover) de las filas de la tabla en modo oscuro */
+[data-theme="dark"] table tbody tr:hover,
+[data-theme="dark"] .report-table tbody tr:hover {
+    background-color: #3a3a3a !important; /* Un gris un poco más claro que el fondo de la tabla */
+}
+
+/* Opcional: Asegurarnos de que el texto no cambie de color accidentalmente al pasar el mouse */
+[data-theme="dark"] table tbody tr:hover td {
+    color: #ffffff !important; 
+}
+
+/* ========================================= */
+/* ESTILOS DEL PANEL FLOTANTE DE USUARIO     */
+/* ========================================= */
+
+/* 1. Contenedor principal del panel */
+.user-tooltip {
+    position: fixed; /* O fixed, para que siga al mouse independientemente del scroll */
+    z-index: 2000; /* Súper alto para que esté encima de todo */
+    background-color: var(--bg-card); /* Usamos el color de tarjeta del tema actual */
+    border: 1px solid var(--borde);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 320px;
+    pointer-events: none; /* Crucial: el mouse "atraviesa" el panel, no interactúa con él */
+    opacity: 0; /* Oculto por defecto */
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Animación suave */
+    transform: translateY(10px); /* Empieza un poco más abajo para el efecto de entrada */
+}
+
+/* 2. Cuando el panel está activo */
+.user-tooltip.active {
+    opacity: 1;
+    transform: translateY(0); /* Sube a su posición original */
+}
+
+/* 3. La foto de perfil dentro del panel */
+.tooltip-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #ddd; /* Fondo gris si carga */
+    border: 2px solid var(--texto-principal);
+}
+
+/* 4. Contenedor de la información de texto */
+.tooltip-info {
+    flex: 1;
+    text-align: left;
+}
+
+.tooltip-info h4 {
+    margin: 0 0 5px 0;
+    color: var(--texto-principal);
+    font-size: 1.15rem;
+    font-weight: bold;
+}
+
+.tooltip-info p {
+    margin: 0;
+    color: var(--texto-secundario);
+    font-size: 0.95rem;
+    line-height: 1.3;
+}
+
+/* 5. Estilo para la etiqueta 'Especialidad:' o 'Área:' */
+.tooltip-label {
+    font-weight: bold;
+    color: var(--texto-principal);
+}
+
+/* 6. Clase para identificar los nombres de usuario en la tabla */
+.hover-username {
+    cursor: help; /* Cambia el cursor para indicar que hay ayuda/información */
+    color: #007bff; /* Un color azul para indicar que es interactivo */
+    text-decoration: underline dotted; /* Subrayado punteado sutil */
 }
