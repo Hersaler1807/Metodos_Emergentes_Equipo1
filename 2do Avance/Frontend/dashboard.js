@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const area = localStorage.getItem('usuarioArea');
 
     // ---------------------------------------------------------
-    //                  ELEMENTOS DEL HTML.
+    //                  ELEMENTOS DEL HTML
     // ---------------------------------------------------------
     const welcomeName = document.getElementById('welcome-name');
     const welcomeDetail = document.getElementById('welcome-detail');
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Lógica por ROL
     if (rol === 'admin') {
         welcomeDetail.innerText = " | Administrador";
-        // footerRole.innerText = "Admin";
+        footerRole.innerText = "Admin";
         
         // Menú Administrador
         menu.innerHTML = `
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } else if (rol === 'tecnico') {
         welcomeDetail.innerText = " | Técnico";
-        // footerRole.innerText = "Técnico";
+        footerRole.innerText = "Técnico";
 
         // Menú Técnico
         menu.innerHTML = `
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         welcomeDetail.innerText = ` | ${areaFormateada}`;
-        //footerRole.innerText = areaFormateada;
+        footerRole.innerText = areaFormateada;
 
         // Menú Usuario
         menu.innerHTML = `
@@ -147,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const vistaGestionReportes = document.getElementById('vista-gestion-reportes'); // <-- ¡YA AGREGAMOS LA VISTA DEL TÉCNICO!
     const vistaAdminUsuarios = document.getElementById('vista-admin-usuarios');
     const tablaBody = document.getElementById('tabla-mis-reportes-body');
-    const vistaDirectorio = document.getElementById('vista-directorio-tecnicos');
     
     // Función para ocultar todo y mostrar solo lo que necesitamos
     function mostrarVista(vistaAMostrar, botonActivo) {
@@ -157,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (vistaMisReportes) vistaMisReportes.style.display = 'none';
         if (vistaGestionReportes) vistaGestionReportes.style.display = 'none'; 
         if (vistaAdminUsuarios) vistaAdminUsuarios.style.display = 'none';
-        if (vistaDirectorio) vistaDirectorio.style.display = 'none';
         
         // Quitar la clase "active" de todos los botones del menú
         const todosLosBotones = document.querySelectorAll('#menu-links li');
@@ -176,8 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnInicio = document.getElementById('btn-menu-inicio');
     const btnCrear = document.getElementById('btn-menu-crear');
     const btnMisReportes = document.getElementById('btn-menu-mis-reportes');
-    const btnMenuTotal = document.getElementById('btn-menu-total');
-    const btnDirectorio = document.getElementById('btn-menu-directorio');
+    const btnMenuTotal = document.getElementById('btn-menu-total'); 
 
     if (btnInicio) {
         btnInicio.addEventListener('click', () => {
@@ -196,13 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
             cargarMisReportes();
         });
     }
-
-    if (btnDirectorio) {
-    btnDirectorio.addEventListener('click', () => {
-        mostrarVista(vistaDirectorio, btnDirectorio);
-        cargarDirectorioTecnicos(); // Llama a la función que pide los datos a Python
-    });
-}
 
     // Al hacer clic en Total de Reportes (Menú del Técnico)
     if (btnMenuTotal) {
@@ -255,33 +245,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (reporte.estado === 'en_proceso') claseEstado = 'estado-en_proceso';
                     if (reporte.estado === 'resuelto') claseEstado = 'estado-resuelto';
 
-                    // Preparamos el bloque de la solución si está resuelto
-                    let infoResolucion = '';
-                    if (reporte.estado === 'resuelto' && reporte.solucion_texto) {
-                        let enlacesEvidencia = '';
-                        if (reporte.evidencia_url) {
-                            const urls = reporte.evidencia_url.split(','); // Por si hay múltiples fotos
-                            urls.forEach((url, index) => {
-                                enlacesEvidencia += `<a href="${url}" target="_blank" style="display: block; margin-top: 5px; color: #007bff; text-decoration: underline;">📷 Ver Evidencia ${urls.length > 1 ? index + 1 : ''}</a>`;
-                            });
-                        }
-                        infoResolucion = `
-                            <div style="margin-top: 10px; padding: 10px; background-color: #e8f5e9; border-left: 4px solid #28a745; border-radius: 5px; text-align: left; font-size: 0.85em; color: #333; line-height: 1.4;">
-                                <strong>Solución:</strong> ${reporte.solucion_texto}
-                                ${enlacesEvidencia}
-                            </div>
-                        `;
-                }
+                    // Llenar la fila con las celdas (td)
+                    fila.innerHTML = `
+                        <td>T-${String(reporte.id).padStart(3, '0')}</td> <td>${reporte.fecha_formateada}</td>
+                        <td>${reporte.asunto}</td>
+                        <td style="text-transform: capitalize;">${reporte.categoria.replace('_', ' ')}</td>
+                        <td><span class="badge-estado ${claseEstado}">${reporte.estado.replace('_', ' ')}</span></td>
+                    `;
 
-                fila.innerHTML = `
-                    <td>T-${String(reporte.id).padStart(3, '0')}</td> <td>${reporte.fecha_formateada}</td>
-                    <td>${reporte.asunto}</td>
-                    <td style="text-transform: capitalize;">${reporte.categoria.replace('_', ' ')}</td>
-                    <td>
-                        <span class="badge-estado ${claseEstado}">${reporte.estado.replace('_', ' ')}</span>
-                        ${infoResolucion}
-                    </td>
-                `;
                     // Agregar la fila al cuerpo de la tabla
                     tablaBody.appendChild(fila);
                 });
@@ -377,8 +348,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!usuarioId || !statusContainer) return;
 
         try {
-            // SI ES TÉCNICO O ADMIN: 4 Tarjetas
-            if (rol === 'tecnico' || rol === 'admin') {
+            // SI ES TÉCNICO: 4 Tarjetas
+            if (rol === 'tecnico') {
                 const respuesta = await fetch(`http://localhost:5000/reports/estadisticas_globales`);
                 if (respuesta.ok) {
                     const stats = await respuesta.json();
@@ -408,7 +379,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     statusContainer.style.gridTemplateColumns = "repeat(4, 1fr)";
 
                     cargarReportesRecientes();
-                    cargarUsuariosRecientes();
                 }
             } 
             // SI ES USUARIO BÁSICO: 3 Tarjetas
@@ -484,51 +454,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (reporte.estado === 'en_proceso') claseEstado = 'estado-en_proceso';
                     if (reporte.estado === 'resuelto') claseEstado = 'estado-resuelto';
 
-                    // Preparamos el bloque de la solución si está resuelto
-                let infoResolucion = '';
-                if (reporte.estado === 'resuelto' && reporte.solucion_texto) {
-                    let enlacesEvidencia = '';
-                    if (reporte.evidencia_url) {
-                        const urls = reporte.evidencia_url.split(','); 
-                        urls.forEach((url, index) => {
-                            enlacesEvidencia += `<a href="${url}" target="_blank" style="display: block; margin-top: 5px; color: #007bff; text-decoration: underline;">📷 Ver Evidencia ${urls.length > 1 ? index + 1 : ''}</a>`;
-                        });
-                    }
-                    infoResolucion = `
-                        <div style="margin-top: 10px; padding: 10px; background-color: #e8f5e9; border-left: 4px solid #28a745; border-radius: 5px; text-align: left; font-size: 0.85em; color: #333; line-height: 1.4;">
-                            <strong>Solución:</strong> ${reporte.solucion_texto}
-                            ${enlacesEvidencia}
-                        </div>
+                    fila.innerHTML = `
+                        <td>T-${String(reporte.id).padStart(3, '0')}</td>
+                        <td><strong>${reporte.asunto}</strong><br><small>Por: ${reporte.nombre_usuario}</small></td>
+                        <td>${reporte.equipo_id}</td>
+                        <td style="text-transform: capitalize;">${reporte.prioridad}</td>
+                        <td><span class="badge-estado ${claseEstado}">${reporte.estado.replace('_', ' ')}</span></td>
+                        <td>
+                            <button class="btn-main" style="padding: 5px 10px; font-size: 0.8rem;" onclick="atenderReporte(${reporte.id})">Atender</button>
+                        </td>
                     `;
-                }
-
-                // 1. Averiguamos quién está viendo la tabla
-                const rolActual = localStorage.getItem('usuarioRol');
-                let botonAccion = '';
-
-                // 2. Si es técnico, le damos el botón de "Atender"
-                if (rolActual === 'tecnico') {
-                    botonAccion = `<button class="btn-main" style="padding: 5px 10px; font-size: 0.8rem; ${reporte.estado === 'resuelto' ? 'display:none;' : ''}" onclick="atenderReporte(${reporte.id})">Atender</button>`;
-                } 
-                // 3. Si es Admin, le damos el botón de "Editar"
-                else if (rolActual === 'admin') {
-                    // Pasamos los datos del reporte a la función para que llene la ventanita automáticamente
-                    botonAccion = `<button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; background-color: #f59e0b; color: white; border: none;" onclick="abrirModalEditarReporte(${reporte.id}, \`${reporte.asunto}\`, '${reporte.categoria}', '${reporte.prioridad}')">✏️ Editar</button>`;
-                }
-
-                fila.innerHTML = `
-                    <td>T-${String(reporte.id).padStart(3, '0')}</td>
-                    <td><strong>${reporte.asunto}</strong><br><small>Por: ${reporte.nombre_usuario}</small></td>
-                    <td>${reporte.equipo_id}</td>
-                    <td style="text-transform: capitalize;">${reporte.prioridad}</td>
-                    <td>
-                        <span class="badge-estado ${claseEstado}">${reporte.estado.replace('_', ' ')}</span>
-                        ${infoResolucion}
-                    </td>
-                    <td>
-                        ${botonAccion} </td>
-                `;
-
                     tablaGestionBody.appendChild(fila);
                 });
             } else {
@@ -588,20 +523,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalReporteId = document.getElementById('modal-reporte-id');
     const modalFolioText = document.getElementById('modal-folio-text');
     const modalNuevoEstado = document.getElementById('modal-nuevo-estado');
-    const camposResolucion = document.getElementById('campos-resolucion');
-    const solucionTexto = document.getElementById('modal-solucion-texto');
-    const evidenciaArchivos = document.getElementById('modal-evidencia-archivos');
-
-    // Escuchar cambios en el selector de estado para mostrar/ocultar los campos
-    modalNuevoEstado.addEventListener('change', function() {
-        if (this.value === 'resuelto') {
-            camposResolucion.style.display = 'block';
-        } else {
-            camposResolucion.style.display = 'none';
-            solucionTexto.value = ''; // Limpiamos si se arrepiente
-            evidenciaArchivos.value = ''; 
-        }
-    });
 
     // Función para abrir la ventanita
     window.atenderReporte = function(id) {
@@ -626,49 +547,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const id = modalReporteId.value;
             const nuevoEstado = modalNuevoEstado.value;
 
-            // Utilizamos FormData en lugar de JSON para poder enviar archivos
-            const formData = new FormData();
-            formData.append('estado', nuevoEstado);
-
-            // Si el técnico eligió "resuelto", validamos y empacamos el texto y las fotos
-            if (nuevoEstado === 'resuelto') {
-                const texto = solucionTexto.value;
-                const archivos = evidenciaArchivos.files;
-
-                if (!texto.trim()) {
-                    alert("⚠️ Por favor, describe la solución antes de cerrar el ticket.");
-                    return;
-                }
-                formData.append('solucion_texto', texto);
-
-                // Si subió fotos, las agregamos una por una al paquete
-                for (let i = 0; i < archivos.length; i++) {
-                    formData.append('evidencias', archivos[i]);
-                }
-            }
-
+            // Cambiamos el texto del botón temporalmente
             btnGuardarEstado.innerText = "Guardando...";
             btnGuardarEstado.disabled = true;
 
             try {
-                // Nota: Al usar FormData, NO debemos poner 'Content-Type' en los headers.
-                // El navegador lo calcula automáticamente para saber cómo dividir los archivos.
+                // Hacemos la petición PUT a la nueva ruta de Python
                 const respuesta = await fetch(`http://localhost:5000/reports/actualizar_estado/${id}`, {
                     method: 'PUT',
-                    headers: { 
-                        'Authorization': `Bearer ${localStorage.getItem('token')}` 
-                    },
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estado: nuevoEstado })
                 });
 
                 const resultado = await respuesta.json();
 
                 if (respuesta.ok) {
                     alert("✅ " + resultado.mensaje);
-                    modalEstado.style.display = 'none';
-                
+                    modalEstado.style.display = 'none'; // Cerramos el modal
+                    
                     cargarTodosLosReportes();
-                    cargarEstadisticasInicio();
+                    cargarEstadisticasInicio(); 
+
                 } else {
                     alert("❌ Error: " + resultado.error);
                 }
@@ -684,7 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---------------------------------------------------------
-    // CARGAR LOS ÚLTIMOS 3 REPORTES EN EL INICIO (TÉCNICO)
+    // CARGAR LOS ÚLTIMOS 5 REPORTES EN EL INICIO (TÉCNICO)
     // ---------------------------------------------------------
     async function cargarReportesRecientes() {
         const bottomList = document.getElementById('bottom-list');
@@ -892,286 +791,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
-
-    // ---------------------------------------------------------
-    // VISTA DEL DIRECTORIO PÚBLICO DE TÉCNICOS
-    // ---------------------------------------------------------
-    async function cargarDirectorioTecnicos() {
-        const grid = document.getElementById('grid-tecnicos');
-        const token = localStorage.getItem('token'); 
-
-        grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">Cargando perfiles del equipo de soporte...</p>';
-
-        try {
-            const respuesta = await fetch('http://127.0.0.1:5000/tecnicos/publico', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            const data = await respuesta.json();
-
-            if (respuesta.ok) {
-                grid.innerHTML = ''; 
-
-                if (data.tecnicos.length === 0) {
-                    grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: gray;">Actualmente no hay técnicos disponibles en el directorio.</p>';
-                    return;
-                }
-
-                data.tecnicos.forEach(tecnico => {
-                    const nombreMostrar = tecnico.nombre_publico || tecnico.nombre_original;
-                    const foto = tecnico.foto_url || 'https://via.placeholder.com/150/cccccc/ffffff?text=Sin+Foto';
-                    const area = tecnico.area_asignada || 'Soporte General';
-
-                    const tarjetaHTML = `
-                        <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s;">
-                            <img src="${foto}" alt="Foto de ${nombreMostrar}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #f0f0f0; margin-bottom: 15px;">
-                            <h3 style="margin: 0 0 5px 0; color: #333; font-size: 1.2rem;">${nombreMostrar}</h3>
-                            <p style="margin: 0; color: #007bff; font-weight: bold; font-size: 0.9rem;">${tecnico.carrera}</p>
-                            <p style="margin: 10px 0; color: #666; font-size: 0.85rem;">Especialidad: <br> ${tecnico.especialidad}</p>
-                            <span style="display: inline-block; background-color: #e3f2fd; color: #0d47a1; padding: 5px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; margin-top: 10px;">
-                                ${area}
-                            </span>
-                        </div>
-                    `;
-                    grid.innerHTML += tarjetaHTML;
-                });
-            } else {
-                grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: red;">Error del servidor: ${data.error}</p>`;
-            }
-        } catch (error) {
-            console.error("Error al conectar con la API:", error);
-            grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: red;">Error de red. Asegúrate de que el backend esté corriendo.</p>';
-        }
-    }
-
-    // ---------------------------------------------------------
-    // CARGAR LOS ÚLTIMOS USUARIOS EN EL INICIO (SOLO ADMIN)
-    // ---------------------------------------------------------
-    async function cargarUsuariosRecientes() {
-        const title = document.getElementById('usuarios-recientes-title');
-        const list = document.getElementById('usuarios-recientes-list');
-        const rol = localStorage.getItem('usuarioRol');
-
-        // Si no es admin, cortamos la ejecución para que no se muestre nada
-        if (rol !== 'admin' || !list) return; 
-
-        // Mostramos los contenedores
-        title.style.display = 'block';
-        list.style.display = 'block';
-        list.innerHTML = '<p style="padding: 20px;">Cargando usuarios recientes...</p>';
-
-        try {
-            const respuesta = await fetch('http://localhost:5000/admin/usuarios/recientes', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const data = await respuesta.json();
-
-            if (respuesta.ok) {
-                list.innerHTML = ''; // Limpiamos el texto de carga
-
-                if (data.usuarios.length === 0) {
-                    list.innerHTML = '<p style="padding: 20px; color: #666;">No hay usuarios en el sistema.</p>';
-                    return;
-                }
-
-                // Dibujamos a cada usuario
-                data.usuarios.forEach(user => {
-                    // Reutilizamos tus mismos colores de rol
-                    let colorRol = '#666'; // Básico
-                    if (user.rol === 'tecnico') colorRol = '#1D4ED8'; // Azul
-                    if (user.rol === 'admin') colorRol = '#B91C1C'; // Rojo
-
-                    const item = document.createElement('div');
-                    item.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #eee;";
-                    item.innerHTML = `
-                        <div>
-                            <strong style="font-size: 1.1rem; color: #333;">${user.nombre}</strong><br>
-                            <small style="color: #666;">${user.correo}</small>
-                        </div>
-                        <div>
-                            <span style="background-color: ${colorRol}; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; text-transform: capitalize;">
-                                ${user.rol.replace('_', ' ')}
-                            </span>
-                        </div>
-                    `;
-                    list.appendChild(item);
-                });
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            list.innerHTML = '<p style="padding: 20px; color: red;">Error de conexión.</p>';
-        }
-    }
-
-    // ---------------------------------------------------------
-    // LÓGICA DEL MODAL PARA EDITAR REPORTES (SOLO ADMIN)
-    // ---------------------------------------------------------
-    const modalEditarReporte = document.getElementById('modal-editar-reporte');
-    const btnCancelarEditRep = document.getElementById('btn-cancelar-edit-rep');
-    const btnGuardarEditRep = document.getElementById('btn-guardar-edit-rep');
-
-    // 1. Función para abrir la ventanita y rellenarla con los datos actuales  
-    window.abrirModalEditarReporte = function(id, asunto, categoria, prioridad) {
-        document.getElementById('edit-rep-id').value = id;
-        document.getElementById('edit-rep-folio').innerText = String(id).padStart(3, '0');
-    
-        document.getElementById('edit-rep-asunto').value = asunto;
-        document.getElementById('edit-rep-categoria').value = categoria;
-        document.getElementById('edit-rep-prioridad').value = prioridad;
-    
-        modalEditarReporte.style.display = 'flex';
-    };
-
-    // 2. Cerrar la ventanita
-    if (btnCancelarEditRep) {
-        btnCancelarEditRep.addEventListener('click', () => {
-            modalEditarReporte.style.display = 'none';
-        });
-    }
-
-    // 3. Enviar los cambios a Python
-    if (btnGuardarEditRep) {
-        btnGuardarEditRep.addEventListener('click', async () => {
-            const id = document.getElementById('edit-rep-id').value;
-            const asunto = document.getElementById('edit-rep-asunto').value;
-            const categoria = document.getElementById('edit-rep-categoria').value;
-            const prioridad = document.getElementById('edit-rep-prioridad').value;
-
-            btnGuardarEditRep.innerText = "Guardando...";
-            btnGuardarEditRep.disabled = true;
-
-            try {
-                const respuesta = await fetch(`http://localhost:5000/reports/editar_admin/${id}`, {
-                    method: 'PUT',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify({ asunto, categoria, prioridad })
-                });
-
-                const resultado = await respuesta.json();
-
-                if (respuesta.ok) {
-                    alert("✅ " + resultado.mensaje);
-                    modalEditarReporte.style.display = 'none';
-                    
-                    // Recargamos las tablas para ver los cambios de inmediato
-                    cargarTodosLosReportes(); 
-                    if(typeof cargarReportesRecientes === 'function') cargarReportesRecientes();
-                } else {
-                    alert("❌ Error: " + resultado.error);
-                }
-            } catch (error) {
-                console.error("Error al actualizar reporte:", error);
-                alert("❌ Ocurrió un error de conexión.");
-            } finally {
-                btnGuardarEditRep.innerText = "Guardar Cambios";
-                btnGuardarEditRep.disabled = false;
-            }
-        });
-    }
-
-    // ---------------------------------------------------------
-    // LÓGICA DE AJUSTES Y MODO OSCURO
-    // ---------------------------------------------------------
-    const btnAjustes = document.getElementById('btn-abrir-ajustes');
-    const modalAjustes = document.getElementById('modal-ajustes');
-    const btnCerrarAjustes = document.getElementById('btn-cerrar-ajustes');
-    const toggleDarkMode = document.getElementById('toggle-dark-mode');
-
-    // 1. Abrir y cerrar la ventanita
-    if (btnAjustes) {
-        btnAjustes.addEventListener('click', () => modalAjustes.style.display = 'flex');
-    }
-    if (btnCerrarAjustes) {
-        btnCerrarAjustes.addEventListener('click', () => modalAjustes.style.display = 'none');
-    }
-
-    // 2. Revisar si el usuario ya tenía el modo oscuro guardado de su sesión anterior
-    if (localStorage.getItem('temaOscuro') === 'activado') {
-        document.body.setAttribute('data-theme', 'dark');
-        if (toggleDarkMode) toggleDarkMode.checked = true;
-    }
-
-    // 3. Al hacer clic en el interruptor, cambiar el tema en tiempo real
-    if (toggleDarkMode) {
-        toggleDarkMode.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                document.body.setAttribute('data-theme', 'dark');
-                localStorage.setItem('temaOscuro', 'activado'); // Lo guardamos en memoria
-            } else {
-                document.body.removeAttribute('data-theme');
-                localStorage.setItem('temaOscuro', 'desactivado');
-            }
-        });
-    }
-
-    // ---------------------------------------------------------
-    // SUBIR FOTO DE PERFIL
-    // ---------------------------------------------------------
-    const btnGuardarFoto = document.getElementById('btn-guardar-foto');
-    const inputFotoPerfil = document.getElementById('input-foto-perfil');
-
-    if (btnGuardarFoto && inputFotoPerfil) {
-        btnGuardarFoto.addEventListener('click', async () => {
-            const archivo = inputFotoPerfil.files[0];
-            
-            // Asumiendo que guardaste el ID del usuario al hacer login
-            const usuarioId = localStorage.getItem('usuarioId'); 
-
-            if (!archivo) {
-                alert("⚠️ Por favor, selecciona una imagen primero.");
-                return;
-            }
-
-            if (!usuarioId) {
-                alert("❌ Error: No se encontró la sesión del usuario.");
-                return;
-            }
-
-            // Preparamos el archivo para enviarlo
-            const formData = new FormData();
-            formData.append('foto', archivo);
-
-            btnGuardarFoto.innerText = "Subiendo...";
-            btnGuardarFoto.disabled = true;
-
-            try {
-                const respuesta = await fetch(`http://localhost:5000/usuarios/subir_foto/${usuarioId}`, {
-                    method: 'POST',
-                    // No se pone 'Content-Type' con FormData, el navegador lo hace solo
-                    body: formData
-                });
-
-                const resultado = await respuesta.json();
-
-                if (respuesta.ok) {
-                    alert("✅ ¡Foto de perfil actualizada con éxito!");
-                    
-                    // Guardamos la URL en memoria y actualizamos la imagen al instante
-                    localStorage.setItem('usuarioFoto', resultado.foto_url);
-                    const sidebarAvatar = document.getElementById('sidebar-avatar');
-                    if (sidebarAvatar) {
-                        sidebarAvatar.src = resultado.foto_url;
-                    }
-                    
-                    // Cerramos la ventanita
-                    document.getElementById('modal-ajustes').style.display = 'none';
-                } else {
-                    alert("❌ Error al subir: " + resultado.error);
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                alert("❌ Ocurrió un error de conexión.");
-            } finally {
-                btnGuardarFoto.innerText = "Subir y Guardar";
-                btnGuardarFoto.disabled = false;
-                inputFotoPerfil.value = '';
-            }
-        });
-    }
 });
