@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
+    <!-- Panel lateral -->
     <div class="main-container">
         <nav class="sidebar">
             <div class="logo-section">
@@ -15,41 +16,234 @@
                     <small>Sistema de Reportes</small>
                 </div>
             </div>
-
+            <!-- Panel de navegacion -->
             <p class="nav-label">Navegación</p>
             <ul id="menu-links"></ul>
 
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <img src="assets/iconos/IconoUsuario.png" alt="Usuario" class="sidebar-icon" style="width: 35px; height: 35px;"> 
-                    <div>
-                        <strong id="footer-name">Nombre</strong><br>
-                        <span id="footer-role" class="badge">Rol</span>
+            <div class="sidebar-footer" style="position: relative; padding: 20px; border-top: 1px solid var(--borde);">
+            
+                <button id="btn-abrir-ajustes" style="position: absolute; top: 10px; right: 10px; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--texto-secundario);" title="Configuración de Perfil">
+                    ⚙️
+                </button>
+
+                <div class="profile-section" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <img id="sidebar-avatar" src="" alt="Avatar" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; background-color: #ddd;">
+                    
+                    <div style="text-align: left;">
+                        <strong id="sidebar-name" style="display: block; color: var(--texto-principal); font-size: 0.95rem;">Cargando...</strong>
+                        <span id="sidebar-role" style="color: var(--texto-secundario); font-size: 0.8rem; text-transform: capitalize;">Rol</span>
                     </div>
                 </div>
-                <button id="btn-logout" class="logout-link">
-                    <span><img src="assets/iconos/CerrarSesion.png" alt="Icono" class="sidebar-icon" style="width: 25px; height: 25px;"></span> Cerrar Sesión
+
+                <button id="btn-logout" class="logout-link" style="width: 100%; text-align: left; background: none; border: none; color: #dc3545; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                    <img src="assets/iconos/CerrarSesion.png" alt="Icono" style="width: 20px;"> Cerrar Sesión
                 </button>
             </div>
         </nav>
 
         <main class="content">
-            <header class="header-welcome">
-                <h1>Inicio</h1>
-                <p>Bienvenido <strong id="welcome-name">Nombre</strong> <span id="welcome-detail">| Detalle</span></p>
-            </header>
+            <!-- Panel principal-->
+            <div id="vista-inicio">
+                <header class="header-welcome">
+                    <h1>Inicio</h1>
+                    <p>Bienvenido <strong id="welcome-name">Nombre</strong> <span id="welcome-detail"></span></p>
+                </header>
 
-            <section class="status-grid" id="status-container">
-                </section>
+                <section class="status-grid" id="status-container">
+                    </section>
 
-            <section class="bottom-section">
-                <h3 id="bottom-title">Cargando...</h3>
-                <div id="bottom-list" class="list-container">
+                <section class="bottom-section" style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 25px;">
+            
+                    <div style="flex: 1; min-width: 350px;">
+                        <h3 id="bottom-title" style="margin-top: 0; margin-bottom: 15px; color: #333;">Cargando...</h3>
+                        <div id="bottom-list" class="list-container" style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden;">
+                            </div>
                     </div>
+
+                    <div style="flex: 1; min-width: 350px;">
+                        <h3 id="usuarios-recientes-title" style="display: none; margin-top: 0; margin-bottom: 15px; color: #333;">Nuevos Integrantes del Sistema</h3>
+                        <div id="usuarios-recientes-list" class="list-container" style="display: none; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden;">
+                            </div>
+                    </div>
+
+                </section>
+        
+            </div>
+
+            <!-- Panel de crear reporte -->
+            <div id="vista-crear-reporte" style="display: none;">
+                <header class="header-welcome">
+                    <h1>Crear Nuevo Reporte</h1>
+                    <p>Por favor, detalla el problema de tu equipo para que un técnico te asista.</p>
+                </header>
+
+                <section class="form-section">
+                    <form id="formNuevoReporte" class="report-form">
+                        
+                        <label>Asunto:</label>
+                        <input type="text" id="repAsunto" placeholder="Ej. Computadora no enciende" required>
+
+                        <label>ID del Equipo (Número de serie o etiqueta):</label>
+                        <input type="text" id="repEquipo" placeholder="Ej. PC-FINANZAS-02" required>
+
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label>Categoría de la falla:</label>
+                                <select id="repCategoria" required>
+                                    <option value="" disabled selected>Selecciona una opción</option>
+                                    <option value="hardware">Hardware (Teclado, Mouse, Monitor, CPU)</option>
+                                    <option value="software">Software (Programas, Windows, Virus)</option>
+                                    <option value="red">Red e Internet</option>
+                                    <option value="mantenimiento_preventivo">Mantenimiento Preventivo</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="form-col">
+                                <label>Prioridad:</label>
+                                <select id="repPrioridad" required>
+                                    <option value="baja">Baja (No afecta mi trabajo)</option>
+                                    <option value="media" selected>Media (Molesto pero puedo trabajar)</option>
+                                    <option value="alta">Alta (No puedo trabajar)</option>
+                                    <option value="critica">Crítica (Afecta a todo el departamento)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <label>Descripción detallada:</label>
+                        <textarea id="repDescripcion" rows="5" placeholder="Describe exactamente qué estabas haciendo y qué error apareció..." required></textarea>
+
+                        <button type="submit" class="btn-main">Enviar Reporte</button>
+                    </form>
+                </section>
+            </div>
+            <!-- Panel para ver mis reportes -->
+             <div id="vista-mis-reportes" style="display: none;">
+                <header class="header-welcome">
+                    <h1>Mis Reportes</h1>
+                    <p>Historial de las solicitudes de soporte que has realizado.</p>
+                </header>
+
+                <section class="table-section">
+                    <div class="table-container">
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Folio</th>
+                                    <th>Fecha</th>
+                                    <th>Asunto</th>
+                                    <th>Categoría</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-mis-reportes-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Panel ptecnico para ver los reportes -->
+            <div id="vista-gestion-reportes" style="display: none;">
+                <header class="header-welcome">
+                    <h1>Gestión de Tickets de Soporte</h1>
+                    <p>Panel de control general para atender las solicitudes.</p>
+                </header>
+
+                <section class="table-section">
+                    <div class="table-container">
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Folio</th>
+                                    <th>Asunto</th>
+                                    <th>ID Equipo</th>
+                                    <th>Prioridad</th>
+                                    <th>Estado Actual</th>
+                                    <th>Acción</th> </tr>
+                            </thead>
+                            <tbody id="tabla-gestion-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+         <!-- Panel dell administrador -->
+        <div id="vista-admin-usuarios" style="display: none;">
+            <header class="header-welcome">
+                <h1>Gestión de Usuarios</h1>
+                <p>Panel de administración para editar roles y contraseñas.</p>
+            </header>
+            
+            <section class="table-section">
+                <div class="table-container">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Correo</th>
+                                <th>Rol</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-usuarios-body">
+                            </tbody>
+                    </table>
+                </div>
             </section>
+        </div>
         </main>
+
     </div>
 
+    <div id="modal-estado" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>Actualizar Estado</h2>
+            <p>Selecciona el nuevo estado para el folio <strong id="modal-folio-text"></strong></p>
+            
+            <input type="hidden" id="modal-reporte-id">
+            
+            <select id="modal-nuevo-estado" class="modal-select">
+                <option value="pendiente">Pendiente</option>
+                <option value="en_proceso">En Proceso</option>
+                <option value="resuelto">Resuelto</option>
+            </select>
+            
+            <div class="modal-actions">
+                <button id="btn-cancelar-estado" class="btn-secondary">Cancelar</button>
+                <button id="btn-guardar-estado" class="btn-main">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="modal-editar-usuario" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>Editar Usuario</h2>
+            <p>Modificando a: <strong id="modal-user-nombre"></strong></p>
+            
+            <input type="hidden" id="modal-user-id">
+            
+            <div style="text-align: left; margin-top: 15px;">
+                <label>Cambiar Rol:</label>
+                <select id="modal-user-rol" class="modal-select" style="margin-top: 5px;">
+                    <option value="usuario_basico">Usuario Básico</option>
+                    <option value="tecnico">Técnico</option>
+                    <option value="admin">Administrador</option>
+                </select>
+
+                <label style="margin-top: 15px; display: block;">Nueva Contraseña:</label>
+                <input type="password" id="modal-user-password" placeholder="Dejar en blanco para no cambiarla" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px;">
+                <small style="color: #666;">Si el usuario olvidó su contraseña, escribe una nueva aquí.</small>
+            </div>
+            
+            <div class="modal-actions" style="margin-top: 25px;">
+                <button id="btn-cancelar-usuario" class="btn-secondary">Cancelar</button>
+                <button id="btn-guardar-usuario" class="btn-main">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="dashboard.js"></script>
 </body>
 </html>
