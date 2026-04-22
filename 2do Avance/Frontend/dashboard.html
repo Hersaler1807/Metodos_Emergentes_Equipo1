@@ -20,16 +20,23 @@
             <p class="nav-label">Navegación</p>
             <ul id="menu-links"></ul>
 
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <img src="assets/iconos/IconoUsuario.png" alt="Usuario" class="sidebar-icon" style="width: 35px; height: 35px;"> 
-                    <div>
-                        <strong id="footer-name">Nombre</strong><br>
-                        <span id="footer-role" class="badge">Rol</span>
+            <div class="sidebar-footer" style="position: relative; padding: 20px; border-top: 1px solid var(--borde);">
+            
+                <button id="btn-abrir-ajustes" style="position: absolute; top: 10px; right: 10px; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--texto-secundario);" title="Configuración de Perfil">
+                    ⚙️
+                </button>
+
+                <div class="profile-section" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <img id="sidebar-avatar" src="" alt="Avatar" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; background-color: #ddd;">
+                    
+                    <div style="text-align: left;">
+                        <strong id="sidebar-name" style="display: block; color: var(--texto-principal); font-size: 0.95rem;">Cargando...</strong>
+                        <span id="sidebar-role" style="color: var(--texto-secundario); font-size: 0.8rem; text-transform: capitalize;">Rol</span>
                     </div>
                 </div>
-                <button id="btn-logout" class="logout-link">
-                    <span><img src="assets/iconos/CerrarSesion.png" alt="Icono" class="sidebar-icon" style="width: 25px; height: 25px;"></span> Cerrar Sesión
+
+                <button id="btn-logout" class="logout-link" style="width: 100%; text-align: left; background: none; border: none; color: #dc3545; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                    <img src="assets/iconos/CerrarSesion.png" alt="Icono" style="width: 20px;"> Cerrar Sesión
                 </button>
             </div>
         </nav>
@@ -45,12 +52,24 @@
                 <section class="status-grid" id="status-container">
                     </section>
 
-                <section class="bottom-section">
-                    <h3 id="bottom-title">Cargando...</h3>
-                    <div id="bottom-list" class="list-container">
-                        </div>
+                <section class="bottom-section" style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 25px;">
+            
+                    <div style="flex: 1; min-width: 350px;">
+                        <h3 id="bottom-title" style="margin-top: 0; margin-bottom: 15px; color: #333;">Cargando...</h3>
+                        <div id="bottom-list" class="list-container" style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden;">
+                            </div>
+                    </div>
+
+                    <div style="flex: 1; min-width: 350px;">
+                        <h3 id="usuarios-recientes-title" style="display: none; margin-top: 0; margin-bottom: 15px; color: #333;">Nuevos Integrantes del Sistema</h3>
+                        <div id="usuarios-recientes-list" class="list-container" style="display: none; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden;">
+                            </div>
+                    </div>
+
                 </section>
+        
             </div>
+
             <!-- Panel de crear reporte -->
             <div id="vista-crear-reporte" style="display: none;">
                 <header class="header-welcome">

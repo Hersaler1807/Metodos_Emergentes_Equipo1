@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---------------------------------------------------------
     const welcomeName = document.getElementById('welcome-name');
     const welcomeDetail = document.getElementById('welcome-detail');
-    const footerName = document.getElementById('footer-name');
-    const footerRole = document.getElementById('footer-role');
+    // const footerName = document.getElementById('footer-name');
+    // const footerRole = document.getElementById('footer-role');
     const menu = document.getElementById('menu-links');
     const statusContainer = document.getElementById('status-container');
     const bottomTitle = document.getElementById('bottom-title');
@@ -28,8 +28,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Llenar datos básicos
     welcomeName.innerText = nombre;
-    footerName.innerText = nombre;
+    // footerName.innerText = nombre;
 
+    // ---------------------------------------------------------
+    // NUEVO: CARGAR AVATAR E INICIALES EN EL SIDEBAR
+    // ---------------------------------------------------------
+    const sidebarName = document.getElementById('sidebar-name');
+    const sidebarRole = document.getElementById('sidebar-role');
+    const sidebarAvatar = document.getElementById('sidebar-avatar');
+
+    if (sidebarName && sidebarRole) {
+        sidebarName.innerText = nombre;
+        // Le quitamos guiones bajos al rol por si acaso y lo ponemos bonito
+        sidebarRole.innerText = rol ? rol.replace('_', ' ') : 'Rol desconocido'; 
+    }
+
+    if (sidebarAvatar && nombre) {
+        const fotoGuardada = localStorage.getItem('usuarioFoto');
+        
+        // Si hay una foto real en memoria, la usamos
+        if (fotoGuardada && fotoGuardada !== 'null' && fotoGuardada !== '') {
+            sidebarAvatar.src = fotoGuardada;
+        } else {
+            // Si no hay foto, generamos las iniciales
+            const urlAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=007bff&color=fff&rounded=true&bold=true`;
+            sidebarAvatar.src = urlAvatar;
+        }
+    }
+   
     // 3. Lógica por ROL
     if (rol === 'admin') {
         welcomeDetail.innerText = " | Administrador";
@@ -87,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <li id="btn-menu-inicio" class="active"><img src="assets/iconos/Inicio.png" class="menu-icon"> Inicio</li>
             <li id="btn-menu-crear"><img src="assets/iconos/CrearReporte.png" class="menu-icon"> Crear reporte</li>
             <li id="btn-menu-mis-reportes"><img src="assets/iconos/MisReportes.png" class="menu-icon"> Mis reportes</li>
-            <li><img src="assets/iconos/NuestrosTecnicos.png" class="menu-icon"> Nuestros técnicos</li>
+            <li id="btn-menu-directorio"><img src="assets/iconos/NuestrosTecnicos.png" class="menu-icon"> Nuestros técnicos</li>
         `;
 
         // Tarjetas Usuario
@@ -107,6 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'index.html';
         };
     }
+
+    
 
     // ---------------------------------------------------------
     //                  LÓGICA DE NAVEGACIÓN
