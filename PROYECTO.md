@@ -72,10 +72,6 @@ Este documento detalla los cambios y asignaciones para la próxima integración 
 
 #  3er Avance - Actualizaciones y Mejoras del Código
 
-Este documento detalla las implementaciones realizadas en la base de datos, el backend, el frontend y las nuevas capas de seguridad del sistema.
-
----
-
 ##  1. Base de Datos (XAMPP / phpMyAdmin)
 - **Nueva tabla de Perfiles de Técnicos:** Se creó una tabla vinculada exclusiva para almacenar información pública de los técnicos (fotografía, carrera académica, especialidad, etc.) para mantener esta información separada de las credenciales de acceso.
 - **Actualización de Roles:** Se modificó la tabla `usuarios`. La columna `rol` ahora incluye la opción de **Administrador**.
@@ -117,3 +113,22 @@ Atendiendo a las observaciones de la revisión anterior, se reforzó la arquitec
 
 *   **Parche de seguridad en la creación de reportes:** Se identificó y solucionó una vulnerabilidad crítica de suplantación de identidad (Spoofing). Anteriormente, un usuario malintencionado podía utilizar las herramientas de desarrollador del navegador (F12) para interceptar la petición HTTP y manipular el `usuario_id` (por ejemplo, enviando el ID "1" para suplantar a un Director o Admin).
 *   **Validación estricta en `reports.py`:** Para erradicar este bug, se integraron nuevas librerías en el archivo `reports.py`. Ahora es obligatorio el envío y validación del Token JWT al momento de agregar reportes, asegurando que el ID del creador del ticket coincida criptográficamente con el usuario autenticado que realiza la petición.
+### 4to Avance - Optimización de Interfaz, Multimedia y Arquitectura Frontend
+
+Este documento detalla las nuevas implementaciones visuales, el manejo de archivos adjuntos y la refactorización de la comunicación entre el cliente y el servidor.
+
+**1. Dashboard y Estadísticas en Tiempo Real (Frontend)**
+* **Tarjetas de Estado Dinámicas:** Se implementó la lógica en `dashboard.js` para consumir el endpoint de estadísticas globales, actualizando en tiempo real los contadores de las tarjetas principales (Total de reportes, En proceso, Pendientes y Resueltos) según el rol del usuario.
+* **Semaforización de Reportes Recientes:** Se agregó un sistema visual de colores para identificar rápidamente la urgencia de los últimos reportes cargados en el inicio (Naranja para "Pendiente", Azul para "En proceso" y Verde para "Resuelto").
+
+**2. Experiencia de Usuario e Interactividad (UI/UX)**
+* **Tarjetas Flotantes (Hover Tooltip):** Se desarrolló un panel dinámico que se activa mediante el evento `mouseover`. Al colocar el cursor sobre el nombre de un técnico o usuario, el sistema realiza una petición asíncrona a la base de datos para mostrar una ventana flotante con su fotografía de perfil y su área asignada, mejorando la navegación sin recargar la página.
+
+**3. Gestión de Archivos y Multimedia (JavaScript / Backend)**
+* **Implementación de FormData:** Se superó la limitación de envío de texto plano (JSON) integrando el objeto `FormData` en las peticiones asíncronas (`fetch`). El navegador ahora calcula automáticamente los *Headers* necesarios para dividir y enviar archivos pesados.
+* **Carga de Fotos de Perfil:** Se conectó la lógica para que los usuarios puedan subir y actualizar su avatar (`usuarios/subir_foto`), renderizando la imagen al instante en la interfaz mediante manipulación del DOM.
+* **Evidencias en Tickets:** Se habilitó el soporte para adjuntar múltiples archivos fotográficos (evidencias) cuando un técnico actualiza el estado o la solución de un ticket.
+
+**4. Arquitectura de Código: Refactorización de Peticiones HTTP**
+* **Variables Globales de Entorno:** Se eliminaron las rutas estáticas (hardcodeadas) en todas las peticiones al servidor. 
+* **Integración de Template Literals (Backticks):** Se reestructuró la sintaxis de JavaScript utilizando comillas invertidas para inyectar la variable global `${API_URL}` en todos los endpoints. Esto estandariza el código y permite que el sistema sea escalable a cualquier entorno de red sin tener que reescribir manualmente cada petición `fetch`.
