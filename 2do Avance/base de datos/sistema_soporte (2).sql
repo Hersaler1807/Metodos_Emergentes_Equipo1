@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 06-05-2026 a las 18:53:14
+-- Tiempo de generación: 14-05-2026 a las 04:21:24
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -67,6 +67,28 @@ INSERT INTO `categorias` (`id`, `nombre`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `comentarios_reporte`
+--
+
+CREATE TABLE `comentarios_reporte` (
+  `id` int(11) NOT NULL,
+  `reporte_id` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL,
+  `comentario` text NOT NULL,
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `comentarios_reporte`
+--
+
+INSERT INTO `comentarios_reporte` (`id`, `reporte_id`, `usuario_id`, `comentario`, `fecha_creacion`) VALUES
+(1, 15, 15, 'el dia de hoy blah blah blah por falta de una pieza', '2026-05-13 15:35:38'),
+(2, 15, 13, 'va que va espero ya quede cabron', '2026-05-13 15:36:15');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `estados`
 --
 
@@ -83,6 +105,32 @@ INSERT INTO `estados` (`id`, `nombre`) VALUES
 (2, 'en_proceso'),
 (1, 'pendiente'),
 (3, 'resuelto');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `mantenimientos`
+--
+
+CREATE TABLE `mantenimientos` (
+  `id` int(11) NOT NULL,
+  `fecha_programada` date NOT NULL,
+  `area_id` int(11) NOT NULL,
+  `tipo_tarea` varchar(100) NOT NULL,
+  `tecnico_id` int(11) NOT NULL,
+  `estado` varchar(20) DEFAULT 'Pendiente',
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `mantenimientos`
+--
+
+INSERT INTO `mantenimientos` (`id`, `fecha_programada`, `area_id`, `tipo_tarea`, `tecnico_id`, `estado`, `fecha_creacion`) VALUES
+(1, '2026-05-20', 1, 'Mantenimiento preventivo y limpieza de hardware', 15, 'Pendiente', '2026-05-13 03:33:36'),
+(3, '2026-05-31', 1, 'mantenimiento preventivo', 15, 'Pendiente', '2026-05-13 04:25:05'),
+(4, '2026-05-31', 1, 'mantenimiento preventivo', 15, 'Pendiente', '2026-05-13 04:25:24'),
+(5, '2026-05-31', 1, 'mantenimiento preventivo', 15, 'Pendiente', '2026-05-13 04:27:29');
 
 -- --------------------------------------------------------
 
@@ -149,22 +197,24 @@ CREATE TABLE `reportes` (
   `evidencia_url` varchar(255) DEFAULT NULL,
   `categoria_id` int(11) DEFAULT NULL,
   `prioridad_id` int(11) DEFAULT NULL,
-  `estado_id` int(11) DEFAULT NULL
+  `estado_id` int(11) DEFAULT NULL,
+  `tecnico_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `reportes`
 --
 
-INSERT INTO `reportes` (`id`, `usuario_id`, `asunto`, `descripcion`, `equipo_id`, `evidencia`, `fecha_creacion`, `fecha_actualizacion`, `solucion_texto`, `evidencia_url`, `categoria_id`, `prioridad_id`, `estado_id`) VALUES
-(7, 11, 'computadora vieja', 'la computadora esta ieja y no puedo trabajar asi', 'itc-2028', NULL, '2026-04-13 22:06:20', '2026-05-06 15:54:13', NULL, NULL, 5, 3, 1),
-(8, 11, 'mi mouse no funciona se traba', 'mi mouse se conecta y desconecta solo', 'itc-4748', NULL, '2026-04-13 22:07:12', '2026-05-06 15:54:13', NULL, NULL, 1, 2, 1),
-(9, 11, 'mi pantalla se ve azul y a veces verde ', 'estaba trabajando se escucho un clic en elmonitor y empezo a cambiar de color azul y verde ', 'itc-4634', NULL, '2026-04-13 22:08:22', '2026-05-06 15:54:13', NULL, NULL, 1, 2, 1),
-(10, 13, 'mi teclado no funciona', 'la linea de emedio de mi teclado no funciona y no me deja escribir', 'itc-4789', NULL, '2026-04-13 22:09:29', '2026-05-06 15:54:13', NULL, NULL, 1, 3, 1),
-(11, 13, 'mi cpu hace mucho ruido', 'no afecta en nada de lo que hago hasta el momento pero me preocupa que empeore mas adelante', 'itc-1234', NULL, '2026-04-13 22:10:29', '2026-05-06 15:54:13', NULL, NULL, 1, 1, 2),
-(12, 13, 'mi computadora se apaga', 'tengo unos documentos en la computadora que ocupo entregar y no quiere encender, ayuda!!!!!!', 'itc-96385', NULL, '2026-04-13 22:11:34', '2026-05-06 15:54:13', 'se cambio al fuente de poder porque fallaba', 'http://localhost:5000/static/evidencias/folio_12_WIN_20250603_14_34_38_Pro.jpg', 1, 4, 3),
-(13, 14, 'el puerto usb de mi computadora no lee mi usb', 'intento leer un usb en mi computadora que se que en otras si puedo leer\n\n', 'itc-4759', NULL, '2026-04-13 22:13:34', '2026-05-06 15:54:13', NULL, NULL, 1, 4, 3),
-(14, 14, 'mamo mi ', 'soy el jefe de departamento y estaba acomodando la computadora y se me cayo', 'itc-4239', NULL, '2026-04-13 22:14:22', '2026-05-06 15:54:13', 'dejo de mamar la compu', 'http://localhost:5000/static/evidencias/folio_14_WIN_20250603_14_35_57_Pro.jpg', 2, 4, 3);
+INSERT INTO `reportes` (`id`, `usuario_id`, `asunto`, `descripcion`, `equipo_id`, `evidencia`, `fecha_creacion`, `fecha_actualizacion`, `solucion_texto`, `evidencia_url`, `categoria_id`, `prioridad_id`, `estado_id`, `tecnico_id`) VALUES
+(7, 11, 'computadora vieja', 'la computadora esta ieja y no puedo trabajar asi', 'itc-2028', NULL, '2026-04-13 22:06:20', '2026-05-06 15:54:13', NULL, NULL, 5, 3, 1, NULL),
+(8, 11, 'mi mouse no funciona se traba', 'mi mouse se conecta y desconecta solo', 'itc-4748', NULL, '2026-04-13 22:07:12', '2026-05-06 15:54:13', NULL, NULL, 1, 2, 1, NULL),
+(9, 11, 'mi pantalla se ve azul y a veces verde ', 'estaba trabajando se escucho un clic en elmonitor y empezo a cambiar de color azul y verde ', 'itc-4634', NULL, '2026-04-13 22:08:22', '2026-05-06 15:54:13', NULL, NULL, 1, 2, 1, NULL),
+(10, 13, 'mi teclado no funciona', 'la linea de emedio de mi teclado no funciona y no me deja escribir', 'itc-4789', NULL, '2026-04-13 22:09:29', '2026-05-06 15:54:13', NULL, NULL, 1, 3, 1, NULL),
+(11, 13, 'mi cpu hace mucho ruido', 'no afecta en nada de lo que hago hasta el momento pero me preocupa que empeore mas adelante', 'itc-1234', NULL, '2026-04-13 22:10:29', '2026-05-06 15:54:13', NULL, NULL, 1, 1, 2, NULL),
+(12, 13, 'mi computadora se apaga', 'tengo unos documentos en la computadora que ocupo entregar y no quiere encender, ayuda!!!!!!', 'itc-96385', NULL, '2026-04-13 22:11:34', '2026-05-06 15:54:13', 'se cambio al fuente de poder porque fallaba', 'http://localhost:5000/static/evidencias/folio_12_WIN_20250603_14_34_38_Pro.jpg', 1, 4, 3, NULL),
+(13, 14, 'el puerto usb de mi computadora no lee mi usb', 'intento leer un usb en mi computadora que se que en otras si puedo leer\n\n', 'itc-4759', NULL, '2026-04-13 22:13:34', '2026-05-06 15:54:13', NULL, NULL, 1, 4, 3, NULL),
+(14, 14, 'mamo mi ', 'soy el jefe de departamento y estaba acomodando la computadora y se me cayo', 'itc-4239', NULL, '2026-04-13 22:14:22', '2026-05-06 15:54:13', 'dejo de mamar la compu', 'http://localhost:5000/static/evidencias/folio_14_WIN_20250603_14_35_57_Pro.jpg', 2, 4, 3, NULL),
+(15, 13, 'mi teclado no funciona', 'sadasdasdsadsadsadsa', 'itc-96385', NULL, '2026-05-13 14:38:43', '2026-05-13 15:26:55', NULL, NULL, 5, 4, 2, 10);
 
 -- --------------------------------------------------------
 
@@ -233,11 +283,27 @@ ALTER TABLE `categorias`
   ADD UNIQUE KEY `nombre` (`nombre`);
 
 --
+-- Indices de la tabla `comentarios_reporte`
+--
+ALTER TABLE `comentarios_reporte`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `reporte_id` (`reporte_id`),
+  ADD KEY `usuario_id` (`usuario_id`);
+
+--
 -- Indices de la tabla `estados`
 --
 ALTER TABLE `estados`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `nombre` (`nombre`);
+
+--
+-- Indices de la tabla `mantenimientos`
+--
+ALTER TABLE `mantenimientos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `area_id` (`area_id`),
+  ADD KEY `tecnico_id` (`tecnico_id`);
 
 --
 -- Indices de la tabla `perfiles_tecnicos`
@@ -297,10 +363,22 @@ ALTER TABLE `categorias`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT de la tabla `comentarios_reporte`
+--
+ALTER TABLE `comentarios_reporte`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT de la tabla `estados`
 --
 ALTER TABLE `estados`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de la tabla `mantenimientos`
+--
+ALTER TABLE `mantenimientos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `perfiles_tecnicos`
@@ -318,7 +396,7 @@ ALTER TABLE `prioridades`
 -- AUTO_INCREMENT de la tabla `reportes`
 --
 ALTER TABLE `reportes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `roles`
@@ -335,6 +413,20 @@ ALTER TABLE `usuarios`
 --
 -- Restricciones para tablas volcadas
 --
+
+--
+-- Filtros para la tabla `comentarios_reporte`
+--
+ALTER TABLE `comentarios_reporte`
+  ADD CONSTRAINT `comentarios_reporte_ibfk_1` FOREIGN KEY (`reporte_id`) REFERENCES `reportes` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `comentarios_reporte_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`);
+
+--
+-- Filtros para la tabla `mantenimientos`
+--
+ALTER TABLE `mantenimientos`
+  ADD CONSTRAINT `mantenimientos_ibfk_1` FOREIGN KEY (`area_id`) REFERENCES `areas` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `mantenimientos_ibfk_2` FOREIGN KEY (`tecnico_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `perfiles_tecnicos`
