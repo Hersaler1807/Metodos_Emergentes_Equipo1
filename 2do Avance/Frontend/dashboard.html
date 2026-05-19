@@ -20,6 +20,19 @@
             <p class="nav-label">Navegación</p>
             <ul id="menu-links"></ul>
 
+            <!-- Botones de Acción Especiales (Ocultos por defecto) -->
+            <div id="sidebar-actions" style="padding: 0 20px; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; border-top: 1px solid var(--borde); padding-top: 15px;">
+                
+                <button id="btn-sidebar-agendar" class="btn btn-main" style="display: none; width: 100%; padding: 10px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; text-align: center;" onclick="abrirModalMantenimiento()">
+                    🗓️ Agendar Visita
+                </button>
+
+                <button id="btnExportarPDF" class="btn btn-primary" style="display: none; width: 100%; padding: 10px; border-radius: 8px; font-size: 0.9rem; background-color: #0d6efd; color: white; border: none; cursor: pointer; text-align: center;">
+                    📄 Descargar PDF
+                </button>
+
+            </div>
+
             <div class="sidebar-footer" style="position: relative; padding: 20px; border-top: 1px solid var(--borde);">
             
                 <button id="btn-abrir-ajustes" style="position: absolute; top: 10px; right: 10px; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--texto-secundario);" title="Configuración de Perfil">
@@ -61,12 +74,30 @@
                 <section class="bottom-section" style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 25px;">
             
                     <div style="flex: 1; min-width: 350px;">
-                        <h3 id="bottom-title" style="margin-top: 0; margin-bottom: 15px; color: #333;">Cargando...</h3>
-                        <div id="bottom-list" class="list-container" style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden;">
-                            </div>
+                        <h3 style="margin-top: 0; margin-bottom: 15px; color: var(--texto-principal);"> Próximos Mantenimientos</h3>
+                        <div class="table-container" style="background: var(--bg-card); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto; border: 1px solid var(--borde);">
+                            <table class="report-table" style="width: 100%; text-align: left; border-collapse: collapse; table-layout: fixed;">
+                                <thead>
+                                    <tr>
+                                        <th style="padding: 12px; border-bottom: 1px solid var(--borde); font-weight: bold;">Fecha</th>
+                                        <th style="padding: 12px; border-bottom: 1px solid var(--borde); font-weight: bold;">Área</th>
+                                        <th style="padding: 12px; border-bottom: 1px solid var(--borde); font-weight: bold;">Tarea y Técnico</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="body-mantenimientos">
+                                    <!-- JavaScript inyectará las filas aquí mágicamente -->
+                                    <tr>
+                                        <td colspan="3" style="text-align: center; padding: 15px;">Cargando mantenimientos...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+                    <!-- Elementos ocultos para evitar que JS crashee al no encontrarlos -->
+                    <div id="bottom-title" style="display: none;"></div>
+                    <div id="bottom-list" style="display: none;"></div>
 
-                    <div style="flex: 1; min-width: 350px;">
+                    <div style="display: none; flex: 1; min-width: 350px;" id="contenedor-usuarios-recientes">
                         <h3 id="usuarios-recientes-title" style="display: none; margin-top: 0; margin-bottom: 15px; color: #333;">Nuevos Integrantes del Sistema</h3>
                         <div id="usuarios-recientes-list" class="list-container" style="display: none; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden;">
                             </div>
@@ -139,6 +170,7 @@
                                     <th>Asunto</th>
                                     <th>Categoría</th>
                                     <th>Estado</th>
+                                    <th>Técnico Asignado</th>
                                 </tr>
                             </thead>
                             <tbody id="tabla-mis-reportes-body">
@@ -165,7 +197,8 @@
                                     <th>ID Equipo</th>
                                     <th>Prioridad</th>
                                     <th>Estado Actual</th>
-                                    <th>Acción</th> </tr>
+                                    <th>Técnico Asignado</th>
+                                    <th>Acción</th>
                             </thead>
                             <tbody id="tabla-gestion-body">
                                 </tbody>
@@ -212,6 +245,39 @@
     </div>
         </main>
 
+    </div>
+
+    <!-- Modal para Agendar Mantenimiento -->
+    <div id="modal-mantenimiento" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>Agendar Mantenimiento</h2>
+            <p>Programa una visita preventiva a un área.</p>
+
+            <form id="form-nuevo-mantenimiento">
+                <div style="text-align: left; margin-top: 15px;">
+                    <label style="display: block; font-weight: bold; font-size: 0.9rem;">Fecha Programada:</label>
+                    <input type="date" id="mant-fecha" required style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: 1px solid var(--borde);">
+
+                    <label style="display: block; font-weight: bold; font-size: 0.9rem; margin-top: 10px;">Área:</label>
+                    <select id="mant-area" required style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: 1px solid var(--borde); background: var(--bg-card); color: var(--texto-principal);">
+                        <option value="">Cargando áreas...</option>
+                    </select>
+
+                    <label style="display: block; font-weight: bold; font-size: 0.9rem; margin-top: 10px;">Técnico Asignado:</label>
+                    <select id="mant-tecnico" required style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: 1px solid var(--borde); background: var(--bg-card); color: var(--texto-principal);">
+                        <option value="">Cargando técnicos...</option>
+                    </select>
+
+                    <label style="display: block; font-weight: bold; font-size: 0.9rem; margin-top: 10px;">Tipo de Tarea:</label>
+                    <input type="text" id="mant-tarea" placeholder="Ej. Limpieza de hardware" required style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: 1px solid var(--borde);">
+                </div>
+
+                <div class="modal-actions" style="margin-top: 20px;">
+                    <button type="button" class="btn-secondary" onclick="cerrarModalMantenimiento()">Cancelar</button>
+                    <button type="submit" class="btn-main">Guardar</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div id="modal-estado" class="modal-overlay" style="display: none;">
@@ -337,5 +403,27 @@
         #slider-dark:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         #toggle-dark-mode:checked + #slider-dark:before { transform: translateX(26px); }
     </style>
+
+    <!-- Modal de Bitácora / Historial -->
+    <div id="modal-bitacora" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div style="background-color: #fff; margin: 5% auto; padding: 20px; border-radius: 8px; width: 50%; max-width: 600px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f1f1; padding-bottom: 10px; margin-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 1.5rem; color: #333;">Bitácora del Reporte <span id="folio-bitacora" style="color: #0d6efd;"></span></h2>
+                <span onclick="cerrarModalBitacora()" style="cursor: pointer; font-size: 28px; font-weight: bold; color: #aaa;">&times;</span>
+            </div>
+            
+            <!-- Contenedor de los comentarios -->
+            <div id="contenedor-comentarios" style="max-height: 350px; overflow-y: auto; padding-right: 10px; margin-bottom: 20px;">
+                <!-- Los comentarios aparecerán aquí dinámicamente -->
+            </div>
+
+            <!-- Formulario para nuevo comentario -->
+            <div style="border-top: 1px solid #eee; padding-top: 15px;">
+                <textarea id="input-comentario" placeholder="Escribe un avance o actualización..." style="width: 100%; height: 80px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; resize: none; margin-bottom: 10px; font-family: inherit;"></textarea>
+                <button onclick="enviarComentario()" style="background-color: #0d6efd; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; float: right; font-weight: bold;">Enviar Comentario</button>
+                <div style="clear: both;"></div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
