@@ -5,6 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
 from functools import wraps
+import os
+from werkzeug.utils import secure_filename
 
 from reports import reports_bp
 
@@ -79,10 +81,10 @@ def registrar_usuario():
         conexion = conectar_db()
         cursor = conexion.cursor()
         
-        cursor.execute(
-            "INSERT INTO usuarios (nombre, correo, area, password, rol) VALUES (%s, %s, %s, %s, %s)",
-            (nombre, correo, area, password_encriptada, 'usuario_basico')
-        )
+        cursor.execute("""
+            INSERT INTO usuarios (nombre, correo, area_id, password, rol_id) 
+            VALUES (%s, %s, (SELECT id FROM areas WHERE nombre = %s), %s, (SELECT id FROM roles WHERE nombre = 'usuario_basico'))
+        """, (nombre, correo, area, password_encriptada))
         conexion.commit()
         cursor.close()
         conexion.close()
@@ -103,7 +105,14 @@ def login():
         cursor = conexion.cursor(dictionary=True)
         
         # Buscamos al usuario por correo
-        query = "SELECT * FROM usuarios WHERE correo = %s"
+        query = """
+            SELECT u.id, u.nombre, u.correo, u.password, 
+                   r.nombre as rol, a.nombre as area, u.foto_url 
+            FROM usuarios u 
+            LEFT JOIN roles r ON u.rol_id = r.id 
+            LEFT JOIN areas a ON u.area_id = a.id 
+            WHERE u.correo = %s
+        """
         cursor.execute(query, (correo,))
         usuario = cursor.fetchone()
         
@@ -150,7 +159,11 @@ def obtener_usuarios(usuario_actual):
         cursor = conexion.cursor()
         
         # Traemos todos los datos excepto la contraseña por seguridad
-        cursor.execute("SELECT id, nombre, correo, rol FROM usuarios")
+        cursor.execute("""
+            SELECT u.id, u.nombre, u.correo, r.nombre as rol 
+            FROM usuarios u 
+            LEFT JOIN roles r ON u.rol_id = r.id
+        """)
         
         # Convertimos los resultados en una lista de diccionarios 
         usuarios = []
@@ -169,6 +182,35 @@ def obtener_usuarios(usuario_actual):
     except Exception as e:
         return jsonify({"error": f"Error al obtener usuarios: {str(e)}"}), 500
 
+# =======================================================
+# Obtener los últimos 3 usuarios (Panel de Inicio Admin)
+# =======================================================
+@app.route('/admin/usuarios/recientes', methods=['GET'])
+@requiere_rol('admin')
+def obtener_usuarios_recientes(usuario_actual):
+    try:
+        conexion = conectar_db()
+        # Usamos dictionary=True para que el JSON se arme solito (como lo hiciste en el login)
+        cursor = conexion.cursor(dictionary=True) 
+
+        # Ordenamos por ID descendente (los números más altos son los más recientes) y limitamos a 3
+        query = """
+            SELECT u.id, u.nombre, u.correo, r.nombre as rol 
+            FROM usuarios u 
+            LEFT JOIN roles r ON u.rol_id = r.id 
+            ORDER BY u.id DESC LIMIT 3
+        """
+        cursor.execute(query)
+        usuarios = cursor.fetchall()
+
+        cursor.close()
+        conexion.close()
+        
+        return jsonify({"usuarios": usuarios}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener usuarios recientes: {str(e)}"}), 500
+
 
 # Actualizar el rol o cambiar la contraseña de un usuario
 @app.route('/admin/usuarios/<int:id_usuario>', methods=['PUT'])
@@ -186,11 +228,11 @@ def editar_usuario(usuario_actual, id_usuario):
             # Encriptamos la nueva contraseña antes de guardarla
             password_encriptada = generate_password_hash(nueva_password)
             
-            query = "UPDATE usuarios SET rol = %s, password = %s WHERE id = %s"
+            query = "UPDATE usuarios SET rol_id = (SELECT id FROM roles WHERE nombre = %s), password = %s WHERE id = %s"
             cursor.execute(query, (nuevo_rol, password_encriptada, id_usuario))
-        else: 
+        else:
             # Si la dejó en blanco, SOLO le cambiamos el rol
-            query = "UPDATE usuarios SET rol = %s WHERE id = %s"
+            query = "UPDATE usuarios SET rol_id = (SELECT id FROM roles WHERE nombre = %s) WHERE id = %s"
             cursor.execute(query, (nuevo_rol, id_usuario))
 
         conexion.commit()
@@ -230,5 +272,216 @@ def eliminar_usuario(usuario_actual, id_usuario):
         return jsonify({"error": f"Error al eliminar usuario: {str(e)}"}), 500
 
 
+# =======================================================
+# RUTAS PÚBLICAS (DIRECTORIO DE TÉCNICOS)
+# =======================================================
+@app.route('/tecnicos/publico', methods=['GET'])
+@requiere_rol('usuario_basico', 'tecnico', 'admin') # Todos los usuarios logueados pueden ver esto
+def obtener_tecnicos_publico(usuario_actual):
+    try:
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True) 
+
+        # Hacemos un JOIN usando los nombres EXACTOS de tus columnas
+        query = """
+            SELECT 
+                u.id,
+                u.nombre AS nombre_original,
+                u.correo,
+                p.nombre_publico,
+                p.foto_url,
+                p.carrera,
+                p.especialidad,
+                a.nombre AS area_asignada
+            FROM usuarios u
+            INNER JOIN perfiles_tecnicos p ON u.id = p.usuario_id
+            INNER JOIN roles r ON u.rol_id = r.id
+            LEFT JOIN areas a ON p.area_id = a.id
+            WHERE r.nombre = 'tecnico'
+        """
+        cursor.execute(query)
+        tecnicos = cursor.fetchall()
+
+        cursor.close()
+        conexion.close()
+
+        # Retornamos la lista de técnicos en formato JSON
+        return jsonify({"tecnicos": tecnicos}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener el directorio de técnicos: {str(e)}"}), 500
+    
+# =======================================================
+# SUBIR FOTO DE PERFIL
+# =======================================================
+@app.route('/usuarios/subir_foto/<int:usuario_id>', methods=['POST'])
+def subir_foto_perfil(usuario_id):
+    try:
+        # 1. Verificamos si viene el archivo
+        if 'foto' not in request.files:
+            return jsonify({"error": "No se envió ninguna foto"}), 400
+            
+        archivo = request.files['foto']
+        if archivo.filename == '':
+            return jsonify({"error": "No se seleccionó ningún archivo"}), 400
+
+        # 2. Creamos la carpeta si no existe
+        carpeta_destino = os.path.join('static', 'profile_pics')
+        if not os.path.exists(carpeta_destino):
+            os.makedirs(carpeta_destino)
+
+        # 3. Guardamos el archivo con un nombre seguro
+        nombre_seguro = secure_filename(f"user_{usuario_id}_{archivo.filename}")
+        ruta_guardado = os.path.join(carpeta_destino, nombre_seguro)
+        archivo.save(ruta_guardado)
+
+        # La URL que el frontend usará para mostrar la foto
+        url_foto = f"http://localhost:5000/static/profile_pics/{nombre_seguro}"
+
+        # 4. Actualizamos la base de datos
+        conexion = conectar_db()
+        cursor = conexion.cursor()
+        
+        # ⚠️ IMPORTANTE: Tu tabla 'usuarios' debe tener una columna 'foto_url' de tipo VARCHAR(255)
+        query = "UPDATE usuarios SET foto_url = %s WHERE id = %s"
+        cursor.execute(query, (url_foto, usuario_id))
+        conexion.commit()
+
+        cursor.close()
+        conexion.close()
+
+        return jsonify({"mensaje": "Foto actualizada", "foto_url": url_foto}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Error al subir foto: {str(e)}"}), 500
+    
+# =======================================================
+# OBTENER DETALLE DE USUARIO (Para el panel flotante)
+# =======================================================
+@app.route('/usuarios/detalle/<int:usuario_id>', methods=['GET'])
+def obtener_detalle_usuario(usuario_id):
+    try:
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+
+        # ⚠️ AQUÍ ESTÁ EL CAMBIO: Quitamos 'especialidad' de la consulta
+        query = """
+            SELECT u.id, u.nombre, r.nombre as rol, a.nombre as area, u.foto_url 
+            FROM usuarios u 
+            LEFT JOIN roles r ON u.rol_id = r.id 
+            LEFT JOIN areas a ON u.area_id = a.id 
+            WHERE u.id = %s
+        """
+        cursor.execute(query, (usuario_id,))
+        usuario = cursor.fetchone()
+
+        cursor.close()
+        conexion.close()
+
+        if usuario:
+            # Limpiamos valores nulos
+            if not usuario['foto_url']: usuario['foto_url'] = ''
+            if not usuario['area']: usuario['area'] = ''
+            # ⚠️ AQUÍ TAMBIÉN: Borramos la línea que limpiaba 'especialidad'
+            
+            return jsonify(usuario), 200
+        else:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+
+    except Exception as e:
+        return jsonify({"error": f"Error en la base de datos: {str(e)}"}), 500
+
+# ==========================================================
+# RUTAS DE MANTENIMIENTOS PREVENTIVOS
+# ==========================================================
+@app.route('/mantenimientos', methods=['GET'])
+def obtener_mantenimientos():
+    try:
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+        
+        # Usamos DATE_FORMAT para que la fecha llegue limpia al Frontend
+        # y JOINs para traer los nombres reales en vez de los IDs
+        query = """
+            SELECT 
+                m.id, 
+                DATE_FORMAT(m.fecha_programada, '%d/%m/%Y') AS fecha, 
+                a.nombre AS area, 
+                m.tipo_tarea, 
+                u.nombre AS tecnico, 
+                m.estado
+            FROM mantenimientos m
+            INNER JOIN areas a ON m.area_id = a.id
+            INNER JOIN usuarios u ON m.tecnico_id = u.id
+            WHERE m.fecha_programada >= CURDATE() -- Solo mostramos los de hoy en adelante
+            ORDER BY m.fecha_programada ASC
+            LIMIT 5 -- Mostramos solo los 5 más próximos
+        """
+        cursor.execute(query)
+        mantenimientos = cursor.fetchall()
+        
+        cursor.close()
+        conexion.close()
+        
+        return jsonify({"mantenimientos": mantenimientos}), 200
+        
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener mantenimientos: {str(e)}"}), 500
+
+@app.route('/api/areas', methods=['GET'])
+def obtener_listado_areas():
+    try:
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+        # Asumiendo que tu tabla se llama 'areas' y tiene 'id' y 'nombre'
+        cursor.execute("SELECT id, nombre FROM areas") 
+        areas = cursor.fetchall()
+        cursor.close()
+        conexion.close()
+        return jsonify(areas)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/tecnicos', methods=['GET'])
+def obtener_listado_tecnicos():
+    try:
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+        # Buscamos a los usuarios que tengan el rol_id = 2 (que es Técnico en tu tabla roles)
+        cursor.execute("SELECT id, nombre FROM usuarios WHERE rol_id = 2") 
+        tecnicos = cursor.fetchall()
+        cursor.close()
+        conexion.close()
+        return jsonify(tecnicos)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  
+
+@app.route('/mantenimientos', methods=['POST'])
+def crear_mantenimiento():
+    try:
+        data = request.json
+        fecha = data['fecha']
+        area_id = data['area_id']
+        tecnico_id = data['tecnico_id']
+        tarea = data['tarea']
+        
+        conexion = conectar_db()
+        cursor = conexion.cursor()
+        
+        query = """
+            INSERT INTO mantenimientos (fecha_programada, area_id, tipo_tarea, tecnico_id) 
+            VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(query, (fecha, area_id, tarea, tecnico_id))
+        conexion.commit()
+        
+        cursor.close()
+        conexion.close()
+        
+        return jsonify({"mensaje": "Mantenimiento agendado con éxito"}), 201
+        
+    except Exception as e:
+        return jsonify({"error": f"Error al guardar: {str(e)}"}), 500
+        
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
