@@ -1,3 +1,12 @@
+// ==========================================
+// CONFIGURACIÓN DEL SERVIDOR
+// ==========================================
+// Descomenta (quita las diagonales) de la línea que vayas a usar:
+
+const API_URL = 'http://localhost:5000';         // Entorno Local (Tu Windows)
+// const API_URL = 'http://192.168.43.129:5000'; // Entorno Servidor (Tu CentOS)
+// ==========================================
+
 document.addEventListener('DOMContentLoaded', () => {
     // ---------------------------------------------------------
     //                  RECUPERACION DE DATOS
@@ -29,6 +38,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Llenar datos básicos
     welcomeName.innerText = nombre;
     // footerName.innerText = nombre;
+
+    // NUEVO: Cargar los mantenimientos en la tabla
+    cargarMantenimientos();
+
+    // ==========================================
+    // PERMISOS DE BOTONES LATERALES
+    // ==========================================
+    const btnAgendar = document.getElementById('btn-sidebar-agendar');
+    const btnPdf = document.getElementById('btnExportarPDF');
+
+    // Si es Administrador: Ve todo
+    if (rol === 'admin' || rol === 'administrador') {
+        if (btnAgendar) btnAgendar.style.display = 'block';
+        if (btnPdf) btnPdf.style.display = 'block';
+    } 
+    // Si es Técnico: Solo ve el de agendar mantenimiento
+    else if (rol === 'tecnico') {
+        if (btnAgendar) btnAgendar.style.display = 'block';
+    }
+    // Si es Usuario Básico: Los botones se quedan ocultos (display 'none')
 
     // ---------------------------------------------------------
     // NUEVO: CARGAR AVATAR E INICIALES EN EL SIDEBAR
@@ -229,17 +258,34 @@ document.addEventListener('DOMContentLoaded', () => {
         tablaBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Cargando tus reportes...</td></tr>';
 
         try {
-            // Pedir los reportes a Python usando el ID del usuario
-            const respuesta = await fetch(`http://localhost:5000/reports/mis_reportes/${usuarioId}`);
+            // Petición directa a tu servidor local de Python
+           const respuesta = await fetch(`http://127.0.0.1:5000/reports/mis_reportes/${usuarioId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
             const resultado = await respuesta.json();
+            
+            // CHISMOSO: Vamos a imprimir en la consola qué nos mandó Python
+            console.log("Respuesta del servidor:", resultado);
 
-            // ¿Qué pasa si sale bien o mal?
+            // AQUÍ ESTABA EL ERROR: Faltaba volver a abrir este condicional
             if (respuesta.ok) {
-                const reportes = resultado.reportes;
+                
+                // Lógica a prueba de balas para obtener el arreglo de reportes
+                let reportes = [];
+                if (Array.isArray(resultado)) {
+                    reportes = resultado; // Si Python mandó la lista directa
+                } else if (resultado && resultado.reportes) {
+                    reportes = resultado.reportes; // Si Python lo mandó dentro de "reportes"
+                }
 
                 // Si no hay reportes, mostrar mensaje amigable
                 if (reportes.length === 0) {
-                    tablaBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No tienes reportes registrados. ¡Usa el botón "Crear reportes" para empezar!</td></tr>';
+                    tablaBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No tienes reportes registrados. ¡Usa el botón "Crear reporte" para empezar!</td></tr>';
                     return;
                 }
 
@@ -274,13 +320,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 fila.innerHTML = `
-                    <td>T-${String(reporte.id).padStart(3, '0')}</td> <td>${reporte.fecha_formateada}</td>
+                    <td style="cursor: pointer; color: #0d6efd; font-weight: bold;" onclick="abrirBitacora(${reporte.id})">
+                        T-${String(reporte.id).padStart(3, '0')}
+                    </td> 
+                    <td>${reporte.fecha_formateada}</td>
                     <td>${reporte.asunto}</td>
                     <td style="text-transform: capitalize;">${reporte.categoria.replace('_', ' ')}</td>
                     <td>
-                        <span class="badge-estado ${claseEstado}">${reporte.estado.replace('_', ' ')}</span>
+                        <span class="badge estado ${claseEstado}">${reporte.estado.replace('_', ' ')}</span>
                         ${infoResolucion}
                     </td>
+                    <td>${reporte.tecnico_asignado ? reporte.tecnico_asignado : 'Sin asignar'}</td>
                 `;
                     // Agregar la fila al cuerpo de la tabla
                     tablaBody.appendChild(fila);
@@ -517,16 +567,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 fila.innerHTML = `
-                    <td>T-${String(reporte.id).padStart(3, '0')}</td>
+                    <td style="cursor: pointer; color: #0d6efd; font-weight: bold;" onclick="abrirBitacora(${reporte.id})">
+                        T-${String(reporte.id).padStart(3, '0')}
+                    </td>
                     <td><strong>${reporte.asunto}</strong><br><small>Por: ${reporte.nombre_usuario}</small></td>
                     <td>${reporte.equipo_id}</td>
                     <td style="text-transform: capitalize;">${reporte.prioridad}</td>
                     <td>
-                        <span class="badge-estado ${claseEstado}">${reporte.estado.replace('_', ' ')}</span>
+                        <span class="badge estado ${claseEstado}">${reporte.estado.replace('_', ' ')}</span>
                         ${infoResolucion}
                     </td>
+                    <td>${reporte.tecnico_asignado ? reporte.tecnico_asignado : 'Sin asignar'}</td>
                     <td>
-                        ${botonAccion} </td>
+                        ${botonAccion}
+                    </td>
                 `;
 
                     tablaGestionBody.appendChild(fila);
@@ -1272,4 +1326,242 @@ document.addEventListener('DOMContentLoaded', () => {
             positionTooltip(e);
         });
     }
+
+    // ==========================================
+    // EXPORTAR REPORTE A PDF (Para Administrador)
+    // ==========================================
+    const btnExportar = document.getElementById('btnExportarPDF');
+
+    if (btnExportar) {
+        btnExportar.addEventListener('click', async () => {
+            // Cambiamos el texto para que el admin sepa que está cargando
+            btnExportar.innerHTML = "⏳ Generando documento...";
+            btnExportar.disabled = true;
+
+            try {
+                const token = localStorage.getItem('token');
+                
+                // Recuerda que tu ruta tiene el prefijo /reports en main.py
+                const respuesta = await fetch('http://127.0.0.1:5000/reports/exportar', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (respuesta.ok) {
+                    // Recibir el archivo PDF puro
+                    const blob = await respuesta.blob();
+                    
+                    // Crear un enlace invisible para forzar la descarga
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = "Reporte_Auditoria_Sistema.pdf"; // Nombre del archivo que se descargará
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    // Limpiar la basura invisible
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    alert("Hubo un problema al generar el PDF.");
+                }
+            } catch (error) {
+                console.error("Error al descargar PDF:", error);
+                alert("Error de conexión al generar el reporte.");
+            } finally {
+                // Regresar el botón a la normalidad
+                btnExportar.innerHTML = "📄 Descargar Reporte PDF";
+                btnExportar.disabled = false;
+            }
+        });
+    }
+
+    // ==========================================================
+    // MÓDULO DE MANTENIMIENTOS PREVENTIVOS
+    // ==========================================================
+    async function cargarMantenimientos() {
+        try {
+            const response = await fetch('http://localhost:5000/mantenimientos');
+            const data = await response.json();
+
+            const tbody = document.getElementById('body-mantenimientos');
+            if (!tbody) return; // Si no existe en la vista actual, salimos
+
+            tbody.innerHTML = ''; // Limpiamos el texto de "Cargando..."
+
+            if (data.mantenimientos && data.mantenimientos.length > 0) {
+                data.mantenimientos.forEach(mant => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="padding: 12px; border-bottom: 1px solid #eee;">
+                            <strong>${mant.fecha}</strong><br>
+                            <span class="badge-estado estado-pendiente" style="font-size: 0.75rem;">${mant.estado}</span>
+                        </td>
+                        <td style="padding: 12px; border-bottom: 1px solid #eee;">${mant.area}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #eee;">
+                            ${mant.tipo_tarea}<br>
+                            <small style="color: gray;">👨‍🔧 ${mant.tecnico}</small>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 15px;">No hay mantenimientos próximos programados.</td></tr>';
+            }
+        } catch (error) {
+            console.error("Error al cargar mantenimientos:", error);
+            const tbody = document.getElementById('body-mantenimientos');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: red;">Error al conectar con el servidor.</td></tr>';
+        }
+    }
 });
+
+// Abrir y cerrar el modal
+async function abrirModalMantenimiento() {
+    // 1. Mostramos el modal
+    document.getElementById('modal-mantenimiento').style.display = 'flex';
+
+    try {
+        // 2. Pedimos las áreas a Python
+        const resAreas = await fetch('http://localhost:5000/api/areas');
+        const areas = await resAreas.json();
+        
+        const selectArea = document.getElementById('mant-area');
+        selectArea.innerHTML = '<option value="">Seleccione un área...</option>';
+        areas.forEach(area => {
+            // Magia: cambiamos el guion bajo por un espacio y ponemos la primera letra en mayúscula
+            let nombreLimpio = area.nombre.replace(/_/g, ' ');
+            nombreLimpio = nombreLimpio.charAt(0).toUpperCase() + nombreLimpio.slice(1);
+            
+            selectArea.innerHTML += `<option value="${area.id}">${nombreLimpio}</option>`;
+        });
+
+        // 3. Pedimos los técnicos a Python
+        const resTecnicos = await fetch('http://localhost:5000/api/tecnicos');
+        const tecnicos = await resTecnicos.json();
+        
+        const selectTecnico = document.getElementById('mant-tecnico');
+        selectTecnico.innerHTML = '<option value="">Seleccione un técnico...</option>';
+        tecnicos.forEach(tecnico => {
+            selectTecnico.innerHTML += `<option value="${tecnico.id}">${tecnico.nombre}</option>`;
+        });
+
+    } catch (error) {
+        console.error("Error al cargar las listas:", error);
+    }
+}
+
+function cerrarModalMantenimiento() {
+    document.getElementById('modal-mantenimiento').style.display = 'none';
+    document.getElementById('form-nuevo-mantenimiento').reset();
+}
+
+// Enviar los datos a Flask
+document.getElementById('form-nuevo-mantenimiento').addEventListener('submit', async (e) => {
+    e.preventDefault(); // Evitamos que la página recargue
+
+    const datos = {
+        fecha: document.getElementById('mant-fecha').value,
+        area_id: document.getElementById('mant-area').value,
+        tecnico_id: document.getElementById('mant-tecnico').value,
+        tarea: document.getElementById('mant-tarea').value
+    };
+
+    try {
+        const response = await fetch('http://localhost:5000/mantenimientos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert('¡Mantenimiento agendado correctamente!');
+            cerrarModalMantenimiento();
+            window.location.reload(); 
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert('Hubo un error de conexión.');
+    }
+});
+let reporteSeleccionadoId = null;
+
+// Función para abrir el modal y cargar los datos
+async function abrirBitacora(reporteId) {
+    reporteSeleccionadoId = reporteId;
+    document.getElementById('folio-bitacora').innerText = `T-${String(reporteId).padStart(3, '0')}`;
+    document.getElementById('modal-bitacora').style.display = 'block';
+    
+    await cargarComentarios();
+}
+
+// Función para cerrar el modal
+function cerrarModalBitacora() {
+    document.getElementById('modal-bitacora').style.display = 'none';
+    document.getElementById('input-comentario').value = '';
+}
+
+// Función para pedir los comentarios al servidor
+async function cargarComentarios() {
+    const contenedor = document.getElementById('contenedor-comentarios');
+    contenedor.innerHTML = '<p style="text-align: center;">Cargando historial...</p>';
+
+    try {
+        const res = await fetch(`http://localhost:5000/reports/obtener_comentarios/${reporteSeleccionadoId}`);
+        const comentarios = await res.json();
+
+        if (comentarios.length === 0) {
+            contenedor.innerHTML = '<p style="text-align: center; color: #888;">No hay comentarios todavía en este reporte.</p>';
+            return;
+        }
+
+        contenedor.innerHTML = comentarios.map(c => `
+            <div style="margin-bottom: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #0d6efd;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <strong style="font-size: 0.9rem; color: #333;">${c.autor}</strong>
+                    <small style="color: #888;">${c.fecha}</small>
+                </div>
+                <p style="margin: 0; font-size: 0.95rem; color: #555;">${c.comentario}</p>
+            </div>
+        `).join('');
+        
+        // Auto-scroll al último comentario
+        contenedor.scrollTop = contenedor.scrollHeight;
+
+    } catch (error) {
+        contenedor.innerHTML = '<p style="color: red;">Error al cargar la bitácora.</p>';
+    }
+}
+
+// Función para enviar un nuevo comentario
+async function enviarComentario() {
+    const texto = document.getElementById('input-comentario').value.trim();
+    if (!texto) return;
+
+    try {
+        const res = await fetch('http://localhost:5000/reports/agregar_comentario', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+                reporte_id: reporteSeleccionadoId,
+                comentario: texto
+            })
+        });
+
+        if (res.ok) {
+            document.getElementById('input-comentario').value = '';
+            await cargarComentarios(); // Recargamos la lista para ver el nuevo
+        }
+    } catch (error) {
+        alert("Error al enviar el comentario.");
+    }
+}
